@@ -136,13 +136,14 @@ void generateFunctionCall(File f, Scope sc)
 
 void generateVarDecl(File f, Scope sc)
 {
-  const varNames = sc.getVisibleVariables();
-
   string suffix;
 
-  if(varNames.length > 0 && uniform(0, 3))
+  if(uniform(0, 3))
   {
-    suffix = format(" = %s", varNames[uniform(0, $)]);
+    const varNames = sc.getVisibleVariables();
+
+    if(varNames.length > 1)
+      suffix = format(" = %s", varNames[uniform(0, $)]);
   }
 
   const name = sc.addVariable();
@@ -197,16 +198,20 @@ class Scope
   string[] getVisibleVariables() const
   {
     string[] r = varNames.dup;
+
     if(parent)
       r ~= parent.getVisibleVariables();
+
     return r;
   }
 
   string[] getVisibleFunctions() const
   {
     string[] r = functionNames.dup;
+
     if(parent)
       r ~= parent.getVisibleFunctions();
+
     return r;
   }
 }
