@@ -151,20 +151,30 @@ void generateFunctionCall(File f, Scope sc)
 
 void generateVarDecl(File f, Scope sc)
 {
-  string suffix;
-
   if(uniform(0, 3))
   {
-    const varNames = sc.getVisibleVariables();
+    string initializer;
 
-    if(varNames.length > 1)
-      suffix = format(" = %s", varNames[uniform(0, $)]);
+    if(uniform(0, 3))
+    {
+      const varNames = sc.getVisibleVariables();
+
+      if(varNames.length > 1)
+        initializer = format(" = %s", varNames[uniform(0, $)]);
+    }
+
+    const name = sc.addVariable();
+    const type = initializer ? "auto" : "int";
+    f.writef("%s %s", type, name);
+    f.write(initializer);
+    f.writeln(";");
   }
-
-  const name = sc.addVariable();
-  f.writef("int %s", name);
-  f.write(suffix);
-  f.writeln(";");
+  else
+  {
+    const funcNames = sc.getVisibleFunctions();
+    if(funcNames.length > 0)
+      f.writefln("auto %s = &%s;", sc.addVariable(), funcNames[uniform(0, $)]);
+  }
 }
 
 void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFuncs)
