@@ -259,11 +259,6 @@ class Scope
   }
 }
 
-string lookupRandomFunction(Scope sc)
-{
-  return sc.functionNames[uniform(0, $)];
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // random
 
