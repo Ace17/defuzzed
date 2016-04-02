@@ -71,6 +71,7 @@ void generateDeclaration(File f, Scope sc)
                     [
                       &generateClass,
                       &generateFunction,
+                      &generateInterface,
                     ]);
 }
 
@@ -79,7 +80,15 @@ void generateClass(File f, Scope sc)
   f.writefln("class %s", sc.allocName());
 
   f.writefln("{");
-  generateDeclarations(f, sc);
+  generateDeclarations(f, sc.sub());
+  f.writefln("}");
+}
+
+void generateInterface(File f, Scope sc)
+{
+  f.writefln("interface %s", sc.allocName());
+
+  f.writefln("{");
   f.writefln("}");
 }
 
@@ -89,9 +98,11 @@ void generateFunction(File f, Scope sc)
 
   f.writefln("void %s()", name);
 
+  auto sub = sc.sub();
+
   f.writefln("{");
-  generateStatements(f, sc);
-  generateDeclarations(f, sc);
+  generateStatements(f, sub);
+  generateDeclarations(f, sub);
   f.writefln("}");
 }
 
@@ -183,14 +194,20 @@ class Scope
     return name;
   }
 
-  string[] getVisibleVariables()
+  string[] getVisibleVariables() const
   {
-    return varNames;
+    string[] r = varNames.dup;
+    if(parent)
+      r ~= parent.getVisibleVariables();
+    return r;
   }
 
-  string[] getVisibleFunctions()
+  string[] getVisibleFunctions() const
   {
-    return functionNames;
+    string[] r = functionNames.dup;
+    if(parent)
+      r ~= parent.getVisibleFunctions();
+    return r;
   }
 }
 
