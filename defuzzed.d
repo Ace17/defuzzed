@@ -14,14 +14,15 @@
  * License, or (at your option) any later version.
  */
 
+import std.array;
 import std.conv;
-import std.string;
+import std.file;
+import std.parallelism;
+import std.path;
+import std.process;
 import std.range;
 import std.stdio;
-import std.parallelism;
-import std.process;
-import std.file;
-import std.path;
+import std.string;
 
 __gshared int count;
 
@@ -32,9 +33,20 @@ int main(string[] args)
 {
   try
   {
+    if(args.length < 2)
+    {
+      writefln("Usage: ./defuzzed.d <compiler command line>");
+      writefln("'%%s' gets replaced with the source file name");
+      writefln("'%%o' gets replaced with the object file name");
+      writefln("Examples:");
+      writefln("./defuzzed.d gdc -c %%s -o %%o");
+      writefln("./defuzzed.d dmd -c %%s -of%%o");
+      return 1;
+    }
+
     auto seeds = iota(int.max);
     foreach(seed; seeds)
-      processSeed(seed);
+      processSeed(seed, args[1 .. $]);
 
     return 0;
   }
@@ -45,11 +57,11 @@ int main(string[] args)
   }
 }
 
-void processSeed(int seed)
+void processSeed(int seed, string[] cmd)
 {
   try
   {
-    safeProcessSeed(seed);
+    safeProcessSeed(seed, cmd);
   }
   catch(Exception e)
   {
@@ -57,7 +69,7 @@ void processSeed(int seed)
   }
 }
 
-void safeProcessSeed(int seed)
+void safeProcessSeed(int seed, string[] baseCmd)
 {
   const sourcePath = buildPath(tempDir(), format("crashed_%s.d", seed));
   scope(success) remove(sourcePath);
@@ -72,8 +84,13 @@ void safeProcessSeed(int seed)
   }
 
   {
-    //const cmd = ["gdc", "-c", sourcePath, "-o", objectPath ];
-    const cmd = ["dmd", "-c", sourcePath, "-of" ~ objectPath ];
+    string[] cmd;
+    foreach(word; baseCmd)
+    {
+      word = replace(word, "%s", sourcePath);
+      word = replace(word, "%o", objectPath);
+      cmd ~= word;
+    }
     writefln("%s", cmd);
     const status = execute(cmd);
     if(status.status > 0)
