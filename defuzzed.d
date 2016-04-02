@@ -73,10 +73,10 @@ void processSeed(int seed, string[] cmd)
 
 void safeProcessSeed(int seed, string[] baseCmd)
 {
-  const sourcePath = buildPath(tempDir(), format("crashed_%s.d", seed));
+  const sourcePath = buildPath(tempDir(), format("test_%03d.d", seed));
   scope(success) remove(sourcePath);
 
-  const objectPath = buildPath(tempDir(), format("crashed_%s.o", seed));
+  const objectPath = buildPath(tempDir(), format("test_%03d.o", seed));
   scope(success) remove(objectPath);
 
   {

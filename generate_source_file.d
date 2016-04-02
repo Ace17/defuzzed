@@ -145,7 +145,7 @@ string allocName()
 
 Random gen;
 
-int numItems = 35;
+int numItems = 35; // desired program size (approximative)
 
 int uniform(int min, long max)
 {
