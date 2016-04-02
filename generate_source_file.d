@@ -66,11 +66,11 @@ void generateDeclarations(File f)
 
 void generateDeclaration(File f)
 {
-  generateRandomOne(
+  generateRandomOne(f,
     [
       &generateClass,
       &generateFunction,
-    ], f);
+    ]);
 }
 
 void generateClass(File f)
@@ -106,12 +106,11 @@ void generateStatements(File f)
 
 void generateStatement(File f)
 {
-  generateRandomOne(
+  generateRandomOne(f,
     [
       &generateFunctionCall,
       &generateVarDecl,
-    ],
-    f);
+    ]);
 }
 
 void generateFunctionCall(File f)
@@ -135,7 +134,7 @@ void generateVarDecl(File f)
   varNames ~= name;
 }
 
-void generateRandomOne(void function(File f)[] genFuncs, File f)
+void generateRandomOne(File f, void function(File f)[] genFuncs)
 {
   auto generator = genFuncs[uniform(0, cast(int)$)];
   generator(f);
