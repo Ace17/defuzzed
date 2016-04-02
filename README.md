@@ -2,7 +2,9 @@
 A fuzzer for D compilers
 
 Usage:
-$ rdmd ./defuzzed.d
+```
+$ ./defuzzed.d <command line for the compiler under test>
+```
 
 Example use on the GNU D compiler:
 ```
