@@ -1,4 +1,4 @@
-#!/usr/bin/env rdmd
+#! /usr/bin/env rdmd
 
 /**
  * @brief Generate random D source files, and try to compile them.
@@ -45,6 +45,7 @@ int main(string[] args)
     }
 
     auto seeds = iota(int.max);
+
     foreach(seed; seeds)
       processSeed(seed, args[1 .. $]);
 
@@ -78,21 +79,25 @@ void safeProcessSeed(int seed, string[] baseCmd)
   scope(success) remove(objectPath);
 
   {
-    const status = execute(["rdmd", "generate_source_file.d", to!string(seed), sourcePath ]);
+    const status = execute(["rdmd", "generate_source_file.d", to!string(seed), sourcePath]);
+
     if(status.status > 0)
       throw new Exception("can't generate source file");
   }
 
   {
     string[] cmd;
+
     foreach(word; baseCmd)
     {
       word = replace(word, "%s", sourcePath);
       word = replace(word, "%o", objectPath);
       cmd ~= word;
     }
+
     writefln("%s", cmd);
     const status = execute(cmd);
+
     if(status.status > 0)
     {
       stderr.writefln("%s", status.output);

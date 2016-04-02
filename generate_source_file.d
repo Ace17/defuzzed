@@ -1,4 +1,4 @@
-#!/usr/bin/env rdmd
+#! /usr/bin/env rdmd
 /**
  * @brief Generate a random D (valid) source file
  * @author Sebastien Alaiwan
@@ -18,14 +18,17 @@
 import std.string;
 import std.stdio;
 import std.conv;
-import std.random : unpredictableSeed, Random;
+import std.random: unpredictableSeed, Random;
 
 int main(string[] args)
 {
   auto seed = unpredictableSeed;
+
   if(args.length > 1)
-    seed = to!int(args[1]);
+    seed = to!int (args[1]);
+
   string outputPath = "-";
+
   if(args.length > 2)
     outputPath = args[2];
 
@@ -57,16 +60,17 @@ void generateDeclarations(File f)
 {
   const numDecls = randomCount();
 
-  for(int i=0;i < numDecls; ++i)
+  for(int i = 0; i < numDecls; ++i)
     generateDeclaration(f);
 }
 
 void generateDeclaration(File f)
 {
-  if(uniform(0, 2))
-    generateClass(f);
-  else
-    generateFunction(f);
+  generateRandomOne(
+    [
+      &generateClass,
+      &generateFunction,
+    ], f);
 }
 
 void generateClass(File f)
@@ -96,7 +100,7 @@ void generateStatements(File f)
 {
   const N = randomCount();
 
-  for(int i=0;i < N; ++i)
+  for(int i = 0; i < N; ++i)
     generateStatement(f);
 }
 
@@ -104,8 +108,8 @@ void generateStatement(File f)
 {
   generateRandomOne(
     [
-    &generateFunctionCall,
-    &generateVarDecl,
+      &generateFunctionCall,
+      &generateVarDecl,
     ],
     f);
 }
@@ -120,10 +124,12 @@ void generateVarDecl(File f)
 {
   const name = allocName();
   f.writef("int %s", name);
+
   if(varNames.length > 0 && uniform(0, 3))
   {
     f.writef(" = %s", varNames[uniform(0, $)]);
   }
+
   f.writeln(";");
 
   varNames ~= name;
