@@ -18,6 +18,7 @@
 import std.string;
 import std.stdio;
 import std.conv;
+import std.math;
 import std.random: unpredictableSeed, Random;
 
 int main(string[] args)
@@ -59,7 +60,7 @@ void generateRandomSourceFile(int seed, File f)
 
 void generateDeclarations(File f, Scope sc)
 {
-  const numDecls = randomCount();
+  const numDecls = randomCount(sc);
 
   for(int i = 0; i < numDecls; ++i)
     generateDeclaration(f, sc);
@@ -123,7 +124,7 @@ void generateFunction(File f, Scope sc)
 
 void generateStatements(File f, Scope sc)
 {
-  const N = randomCount();
+  const N = randomCount(sc);
 
   for(int i = 0; i < N; ++i)
     generateStatement(f, sc);
@@ -192,6 +193,14 @@ class Scope
   string[] varNames;
   string[] classNames;
   string[] functionNames;
+
+  int depth() const
+  {
+    if(parent)
+      return 1 + parent.depth();
+    else
+      return 0;
+  }
 
   Scope sub()
   {
@@ -264,20 +273,19 @@ class Scope
 
 Random gen;
 
-int numItems = 50; // desired program size (approximative)
+const SIZE_FACTOR = 0.01;
 
 int uniform(int min, long max)
 {
   return std.random.uniform(min, cast(int)max, gen);
 }
 
-int randomCount()
+int randomCount(Scope sc)
 {
-  if(numItems <= 0)
-    return 0;
-
-  const N = uniform(1, 10);
-  numItems -= N;
+  const alpha = 3;
+  const minVal = sc.depth() ? 0 : alpha;
+  const maxVal = (alpha+1) * exp(-1.0 * SIZE_FACTOR * sc.depth());
+  const N = uniform(minVal, 1 + cast(int)maxVal);
   return N;
 }
 
