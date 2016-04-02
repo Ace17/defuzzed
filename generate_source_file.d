@@ -102,14 +102,12 @@ void generateStatements(File f)
 
 void generateStatement(File f)
 {
-  immutable genFuncs =
+  generateRandomOne(
     [
     &generateFunctionCall,
     &generateVarDecl,
-    ];
-
-  auto generator = genFuncs[uniform(0, cast(int)$)];
-  generator(f);
+    ],
+    f);
 }
 
 void generateFunctionCall(File f)
@@ -129,6 +127,12 @@ void generateVarDecl(File f)
   f.writeln(";");
 
   varNames ~= name;
+}
+
+void generateRandomOne(void function(File f)[] genFuncs, File f)
+{
+  auto generator = genFuncs[uniform(0, cast(int)$)];
+  generator(f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
