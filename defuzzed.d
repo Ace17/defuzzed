@@ -26,8 +26,6 @@ import std.range;
 import std.stdio;
 import std.string;
 
-__gshared int count;
-
 // TODO: add options:
 // -v (verbose)
 // -s (approx. generated program size)
@@ -101,16 +99,6 @@ void safeProcessSeed(int seed, string[] baseCmd)
       const msg = format("can't compile source file\ncommand: %s\nexitcode: %s", join(cmd, " "), status.status);
       throw new Exception(msg);
     }
-  }
-
-  synchronized
-  {
-    if(count % 100 == 0)
-    {
-      writef("\rTest cases: %s", count);
-      stdout.flush();
-    }
-    ++count;
   }
 }
 

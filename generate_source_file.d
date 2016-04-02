@@ -105,7 +105,7 @@ void generateStatement(File f)
   immutable genFuncs =
     [
     &generateFunctionCall,
-    &generateFunctionCall,
+    &generateVarDecl,
     ];
 
   auto generator = genFuncs[uniform(0, cast(int)$)];
@@ -118,9 +118,23 @@ void generateFunctionCall(File f)
   f.writefln("%s();", name);
 }
 
+void generateVarDecl(File f)
+{
+  const name = allocName();
+  f.writef("int %s", name);
+  if(varNames.length > 0 && uniform(0, 3))
+  {
+    f.writef(" = %s", varNames[uniform(0, $)]);
+  }
+  f.writeln(";");
+
+  varNames ~= name;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // generated program environment
 
+string[] varNames;
 string[] functionNames;
 
 struct Function
@@ -145,7 +159,7 @@ string allocName()
 
 Random gen;
 
-int numItems = 35; // desired program size (approximative)
+int numItems = 50; // desired program size (approximative)
 
 int uniform(int min, long max)
 {
