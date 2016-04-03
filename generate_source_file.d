@@ -71,6 +71,8 @@ void generateDeclaration(File f, Scope sc)
   generateRandomOne(f, sc,
                     [
                       &generateClass,
+                      &generateUnion,
+                      &generateStruct,
                       &generateFunction,
                       &generateInterface,
                     ]);
@@ -97,6 +99,22 @@ void generateClass(File f, Scope sc)
 
   f.writefln("{");
   generateDeclarations(f, sc.sub());
+  f.writefln("}");
+}
+
+void generateUnion(File f, Scope sc)
+{
+  f.writefln("union U%s", sc.allocName());
+  f.writefln("{");
+  //generateDeclarations(f, sc.sub());
+  f.writefln("}");
+}
+
+void generateStruct(File f, Scope sc)
+{
+  f.writefln("struct S%s", sc.allocName());
+  f.writefln("{");
+  //generateDeclarations(f, sc.sub());
   f.writefln("}");
 }
 
@@ -218,21 +236,21 @@ class Scope
 
   string addClass()
   {
-    const name = allocName();
+    const name = format("C%s", classNames.length);
     classNames ~= name;
     return name;
   }
 
   string addVariable()
   {
-    const name = allocName();
+    const name = format("v%s", varNames.length);
     varNames ~= name;
     return name;
   }
 
   string addFunction()
   {
-    const name = allocName();
+    const name = format("f%s", functionNames.length);
     functionNames ~= name;
     return name;
   }
