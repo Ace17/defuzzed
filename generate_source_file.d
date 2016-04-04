@@ -87,14 +87,17 @@ void generateClass(File f, Scope sc)
     if(uniform(0, 2))
     {
       auto classes = sc.getVisibleClasses();
+
       if(classes.length > 0)
         inheritFrom = classes[uniform(0, $)];
     }
   }
 
   f.writef("class %s", sc.addClass());
+
   if(inheritFrom)
     f.writef(" : %s", inheritFrom);
+
   f.writeln();
 
   f.writefln("{");
@@ -106,7 +109,7 @@ void generateUnion(File f, Scope sc)
 {
   f.writefln("union U%s", sc.allocName());
   f.writefln("{");
-  //generateDeclarations(f, sc.sub());
+  // generateDeclarations(f, sc.sub());
   f.writefln("}");
 }
 
@@ -114,7 +117,7 @@ void generateStruct(File f, Scope sc)
 {
   f.writefln("struct S%s", sc.allocName());
   f.writefln("{");
-  //generateDeclarations(f, sc.sub());
+  // generateDeclarations(f, sc.sub());
   f.writefln("}");
 }
 
@@ -191,6 +194,7 @@ void generateVarDecl(File f, Scope sc)
   else
   {
     const funcNames = sc.getVisibleFunctions();
+
     if(funcNames.length > 0)
       f.writefln("auto %s = &%s;", sc.addVariable(), funcNames[uniform(0, $)]);
   }
@@ -267,17 +271,21 @@ class Scope
   string[] getVisible(uint flags) const
   {
     auto r = getVisibleLocal(flags);
+
     if(parent)
       r ~= parent.getVisible(flags);
+
     return r;
   }
 
   string[] getVisibleLocal(uint flags) const
   {
     string[] r;
+
     foreach(sym; symbols)
       if(sym.flags & flags)
         r ~= sym.name;
+
     return r;
   }
 
