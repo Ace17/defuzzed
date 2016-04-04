@@ -289,21 +289,33 @@ class Scope
 ///////////////////////////////////////////////////////////////////////////////
 // random
 
-Random gen;
+int randomCount(Scope sc)
+{
+  int left, right;
 
-const SIZE_FACTOR = 0.01;
+  if(sc.depth <= 2)
+  {
+    left = 1;
+    right = 6;
+  }
+  else if(sc.depth > 20)
+  {
+    left = 0;
+    right = 2;
+  }
+  else
+  {
+    left = 1;
+    right = 4;
+  }
+
+  return uniform(left, right);
+}
+
+Random gen;
 
 int uniform(int min, long max)
 {
   return std.random.uniform(min, cast(int)max, gen);
-}
-
-int randomCount(Scope sc)
-{
-  const alpha = 3;
-  const minVal = sc.depth() ? 0 : alpha;
-  const maxVal = (alpha+1) * exp(-1.0 * SIZE_FACTOR * sc.depth());
-  const N = uniform(minVal, 1 + cast(int)maxVal);
-  return N;
 }
 
