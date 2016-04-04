@@ -157,6 +157,7 @@ void generateStatement(File f, Scope sc)
   generateRandomOne(f, sc,
                     [
                       &generateFunctionCall,
+                      &generateIfStatement,
                       &generateForLoop,
                       &generateVarDecl,
                     ]);
@@ -205,6 +206,26 @@ void generateVarDecl(File f, Scope sc)
   }
 }
 
+void generateIfStatement(File f, Scope sc)
+{
+  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
+
+  const condition = variables.empty ? "1" : pickRandom(variables).name;
+
+  f.writefln("if(%s)", condition);
+  f.writefln("{");
+  generateStatements(f, sc.sub());
+  f.writefln("}");
+
+  if(uniform(0, 20) == 0)
+  {
+    f.writefln("else");
+    f.writefln("{");
+    generateStatements(f, sc.sub());
+    f.writefln("}");
+  }
+}
+
 void generateForLoop(File f, Scope sc)
 {
   const itName = sc.allocName();
@@ -212,9 +233,7 @@ void generateForLoop(File f, Scope sc)
   auto variables = filter!isIntVariable(sc.getVisibleSymbols());
 
   const init = variables.empty ? "0" : pickRandom(variables).name;
-  ;
   const end = variables.empty ? "0" : pickRandom(variables).name;
-  ;
 
   f.writefln("for(int %s=%s;%s < %s;++%s)", itName, init, itName, end, itName);
   f.writefln("{");
