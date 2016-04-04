@@ -208,9 +208,18 @@ void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFu
 class Scope
 {
   Scope parent;
-  string[] varNames;
-  string[] classNames;
-  string[] functionNames;
+
+  struct Symbol
+  {
+    string name;
+    uint flags;
+
+    enum FL_CLASS = 1;
+    enum FL_VARIABLE = 2;
+    enum FL_FUNCTION = 4;
+  }
+
+  Symbol[] symbols;
 
   int depth() const
   {
@@ -236,53 +245,55 @@ class Scope
 
   string addClass()
   {
-    const name = format("C%s", classNames.length);
-    classNames ~= name;
+    const name = format("C%s", symbols.length);
+    symbols ~= Symbol(name, Symbol.FL_CLASS);
     return name;
   }
 
   string addVariable()
   {
-    const name = format("v%s", varNames.length);
-    varNames ~= name;
+    const name = format("v%s", symbols.length);
+    symbols ~= Symbol(name, Symbol.FL_VARIABLE);
     return name;
   }
 
   string addFunction()
   {
-    const name = format("f%s", functionNames.length);
-    functionNames ~= name;
+    const name = format("f%s", symbols.length);
+    symbols ~= Symbol(name, Symbol.FL_FUNCTION);
     return name;
+  }
+
+  string[] getVisible(uint flags) const
+  {
+    auto r = getVisibleLocal(flags);
+    if(parent)
+      r ~= parent.getVisible(flags);
+    return r;
+  }
+
+  string[] getVisibleLocal(uint flags) const
+  {
+    string[] r;
+    foreach(sym; symbols)
+      if(sym.flags & flags)
+        r ~= sym.name;
+    return r;
   }
 
   string[] getVisibleClasses() const
   {
-    string[] r = classNames.dup;
-
-    if(parent)
-      r ~= parent.getVisibleClasses();
-
-    return r;
+    return getVisible(Symbol.FL_CLASS);
   }
 
   string[] getVisibleVariables() const
   {
-    string[] r = varNames.dup;
-
-    if(parent)
-      r ~= parent.getVisibleVariables();
-
-    return r;
+    return getVisible(Symbol.FL_VARIABLE);
   }
 
   string[] getVisibleFunctions() const
   {
-    string[] r = functionNames.dup;
-
-    if(parent)
-      r ~= parent.getVisibleFunctions();
-
-    return r;
+    return getVisible(Symbol.FL_FUNCTION);
   }
 }
 
