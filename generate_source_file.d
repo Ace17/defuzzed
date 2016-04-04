@@ -19,8 +19,9 @@ import std.string;
 import std.stdio;
 import std.conv;
 import std.math;
-import std.random: unpredictableSeed, Random, randomSample;
 import std.algorithm;
+import std.random: unpredictableSeed;
+import entropy;
 
 int main(string[] args)
 {
@@ -61,7 +62,7 @@ void generateRandomSourceFile(int seed, File f)
 
 void generateDeclarations(File f, Scope sc)
 {
-  const numDecls = randomCount(sc);
+  const numDecls = randomCount(sc.depth);
 
   for(int i = 0; i < numDecls; ++i)
     generateDeclaration(f, sc);
@@ -146,7 +147,7 @@ void generateFunction(File f, Scope sc)
 
 void generateStatements(File f, Scope sc)
 {
-  const N = randomCount(sc);
+  const N = randomCount(sc.depth);
 
   for(int i = 0; i < N; ++i)
     generateStatement(f, sc);
@@ -364,51 +365,5 @@ class Scope
   {
     return getVisible(Symbol.FL_FUNCTION);
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// random
-
-auto pickRandom(Range)(ref Range r)
-{
-  auto result = r.front();
-
-  while(!r.empty() && uniform(0, 10) != 0)
-  {
-    result = r.front();
-    r.popFront();
-  }
-
-  return result;
-}
-
-int randomCount(Scope sc)
-{
-  int left, right;
-
-  if(sc.depth <= 2)
-  {
-    left = 1;
-    right = 6;
-  }
-  else if(sc.depth > 20)
-  {
-    left = 0;
-    right = 2;
-  }
-  else
-  {
-    left = 1;
-    right = 4;
-  }
-
-  return uniform(left, right);
-}
-
-Random gen;
-
-int uniform(int min, long max)
-{
-  return std.random.uniform(min, cast(int)max, gen);
 }
 
