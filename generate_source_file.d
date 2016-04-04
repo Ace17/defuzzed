@@ -2,7 +2,6 @@
 /**
  * @brief Generate a random D (valid) source file
  * @author Sebastien Alaiwan
- * @date 2016-04-02
  */
 
 /*
@@ -15,13 +14,13 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
-import std.string;
-import std.stdio;
-import std.conv;
-import std.math;
 import std.algorithm;
+import std.conv;
 import std.random: unpredictableSeed;
+import std.stdio;
+
 import entropy;
+import scope_;
 
 int main(string[] args)
 {
@@ -182,12 +181,13 @@ void generateVarDecl(File f, Scope sc)
     string initializer;
 
     if(uniform(0, 3))
-      initializer = format(" = %s", getRandomRValue(sc));
+      initializer = getRandomRValue(sc);
 
     const name = sc.addVariable();
     const type = initializer ? "auto" : "int";
     f.writef("%s %s", type, name);
-    f.write(initializer);
+    if(initializer)
+      f.writef("= %s", initializer);
     f.writeln(";");
   }
   else
@@ -248,122 +248,5 @@ string getRandomRValue(Scope sc)
 static bool isIntVariable(Scope.Symbol s)
 {
   return s.flags & Scope.Symbol.FL_VARIABLE && s.type == "int";
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// generated program environment
-
-class Scope
-{
-  Scope parent;
-
-  struct Symbol
-  {
-    string name;
-    uint flags;
-    string type;
-
-    enum FL_CLASS = 1;
-    enum FL_VARIABLE = 2;
-    enum FL_FUNCTION = 4;
-  }
-
-  Symbol[] symbols;
-
-  int depth() const
-  {
-    if(parent)
-      return 1 + parent.depth();
-    else
-      return 0;
-  }
-
-  Scope sub()
-  {
-    auto sc = new Scope;
-    sc.parent = this;
-    return sc;
-  }
-
-  string allocName()
-  {
-    static int id;
-    ++id;
-    return format("i%s", id++);
-  }
-
-  string addClass()
-  {
-    const name = format("C%s", symbols.length);
-    symbols ~= Symbol(name, Symbol.FL_CLASS);
-    return name;
-  }
-
-  string addVariable(string type = "int")
-  {
-    for(int i = 0;; ++i)
-    {
-      const name = format("v%s_%s", symbols.length, i);
-
-      if(canFind(getVisible(Symbol.FL_VARIABLE), name))
-        continue;
-
-      symbols ~= Symbol(name, Symbol.FL_VARIABLE, type);
-      return name;
-    }
-  }
-
-  string addFunction()
-  {
-    const name = format("f%s", symbols.length);
-    symbols ~= Symbol(name, Symbol.FL_FUNCTION);
-    return name;
-  }
-
-  Symbol[] getVisibleSymbols() const
-  {
-    auto r = symbols.dup;
-
-    if(parent)
-      r ~= parent.getVisibleSymbols();
-
-    return r;
-  }
-
-  string[] getVisible(uint flags = ~0) const
-  {
-    auto r = getVisibleLocal(flags);
-
-    if(parent)
-      r ~= parent.getVisible(flags);
-
-    return r;
-  }
-
-  string[] getVisibleLocal(uint flags) const
-  {
-    string[] r;
-
-    foreach(sym; symbols)
-      if(sym.flags & flags)
-        r ~= sym.name;
-
-    return r;
-  }
-
-  string[] getVisibleClasses() const
-  {
-    return getVisible(Symbol.FL_CLASS);
-  }
-
-  string[] getVisibleVariables() const
-  {
-    return getVisible(Symbol.FL_VARIABLE);
-  }
-
-  string[] getVisibleFunctions() const
-  {
-    return getVisible(Symbol.FL_FUNCTION);
-  }
 }
 
