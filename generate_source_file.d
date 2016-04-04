@@ -181,12 +181,7 @@ void generateVarDecl(File f, Scope sc)
     string initializer;
 
     if(uniform(0, 3))
-    {
-      auto variables = filter!isIntVariable(sc.getVisibleSymbols());
-
-      if(!variables.empty)
-        initializer = format(" = %s", pickRandom(variables).name);
-    }
+      initializer = format(" = %s", getRandomRValue(sc));
 
     const name = sc.addVariable();
     const type = initializer ? "auto" : "int";
@@ -208,9 +203,7 @@ void generateVarDecl(File f, Scope sc)
 
 void generateIfStatement(File f, Scope sc)
 {
-  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
-
-  const condition = variables.empty ? "1" : pickRandom(variables).name;
+  const condition = getRandomRValue(sc);
 
   f.writefln("if(%s)", condition);
   f.writefln("{");
@@ -230,10 +223,8 @@ void generateForLoop(File f, Scope sc)
 {
   const itName = sc.allocName();
 
-  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
-
-  const init = variables.empty ? "0" : pickRandom(variables).name;
-  const end = variables.empty ? "0" : pickRandom(variables).name;
+  const init = getRandomRValue(sc);
+  const end = getRandomRValue(sc);
 
   f.writefln("for(int %s=%s;%s < %s;++%s)", itName, init, itName, end, itName);
   f.writefln("{");
@@ -245,6 +236,12 @@ void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFu
 {
   auto generator = genFuncs[uniform(0, cast(int)$)];
   generator(f, sc);
+}
+
+string getRandomRValue(Scope sc)
+{
+  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
+  return variables.empty ? "0" : pickRandom(variables).name;
 }
 
 static bool isIntVariable(Scope.Symbol s)
