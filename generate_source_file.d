@@ -19,7 +19,8 @@ import std.string;
 import std.stdio;
 import std.conv;
 import std.math;
-import std.random: unpredictableSeed, Random;
+import std.random: unpredictableSeed, Random, randomSample;
+import std.algorithm;
 
 int main(string[] args)
 {
@@ -156,6 +157,7 @@ void generateStatement(File f, Scope sc)
   generateRandomOne(f, sc,
                     [
                       &generateFunctionCall,
+                      &generateForLoop,
                       &generateVarDecl,
                     ]);
 }
@@ -179,10 +181,10 @@ void generateVarDecl(File f, Scope sc)
 
     if(uniform(0, 3))
     {
-      const varNames = sc.getVisibleVariables();
+      auto variables = filter!isIntVariable(sc.getVisibleSymbols());
 
-      if(varNames.length > 1)
-        initializer = format(" = %s", varNames[uniform(0, $)]);
+      if(!variables.empty)
+        initializer = format(" = %s", pickRandom(variables).name);
     }
 
     const name = sc.addVariable();
@@ -193,17 +195,42 @@ void generateVarDecl(File f, Scope sc)
   }
   else
   {
-    const funcNames = sc.getVisibleFunctions();
+    auto funcSymbols = filter!(a => a.flags & Scope.Symbol.FL_FUNCTION)(sc.getVisibleSymbols());
 
-    if(funcNames.length > 0)
-      f.writefln("auto %s = &%s;", sc.addVariable(), funcNames[uniform(0, $)]);
+    if(!funcSymbols.empty)
+    {
+      const funcName = pickRandom(funcSymbols).name;
+      f.writefln("auto %s = &%s;", sc.addVariable("delegate"), funcName);
+    }
   }
+}
+
+void generateForLoop(File f, Scope sc)
+{
+  const itName = sc.allocName();
+
+  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
+
+  const init = variables.empty ? "0" : pickRandom(variables).name;
+  ;
+  const end = variables.empty ? "0" : pickRandom(variables).name;
+  ;
+
+  f.writefln("for(int %s=%s;%s < %s;++%s)", itName, init, itName, end, itName);
+  f.writefln("{");
+  generateStatements(f, sc.sub());
+  f.writefln("}");
 }
 
 void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFuncs)
 {
   auto generator = genFuncs[uniform(0, cast(int)$)];
   generator(f, sc);
+}
+
+static bool isIntVariable(Scope.Symbol s)
+{
+  return s.flags & Scope.Symbol.FL_VARIABLE && s.type == "int";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,6 +244,7 @@ class Scope
   {
     string name;
     uint flags;
+    string type;
 
     enum FL_CLASS = 1;
     enum FL_VARIABLE = 2;
@@ -254,11 +282,18 @@ class Scope
     return name;
   }
 
-  string addVariable()
+  string addVariable(string type = "int")
   {
-    const name = format("v%s", symbols.length);
-    symbols ~= Symbol(name, Symbol.FL_VARIABLE);
-    return name;
+    for(int i = 0;; ++i)
+    {
+      const name = format("v%s_%s", symbols.length, i);
+
+      if(canFind(getVisible(Symbol.FL_VARIABLE), name))
+        continue;
+
+      symbols ~= Symbol(name, Symbol.FL_VARIABLE, type);
+      return name;
+    }
   }
 
   string addFunction()
@@ -268,7 +303,17 @@ class Scope
     return name;
   }
 
-  string[] getVisible(uint flags) const
+  Symbol[] getVisibleSymbols() const
+  {
+    auto r = symbols.dup;
+
+    if(parent)
+      r ~= parent.getVisibleSymbols();
+
+    return r;
+  }
+
+  string[] getVisible(uint flags = ~0) const
   {
     auto r = getVisibleLocal(flags);
 
@@ -307,6 +352,19 @@ class Scope
 
 ///////////////////////////////////////////////////////////////////////////////
 // random
+
+auto pickRandom(Range)(ref Range r)
+{
+  auto result = r.front();
+
+  while(!r.empty() && uniform(0, 10) != 0)
+  {
+    result = r.front();
+    r.popFront();
+  }
+
+  return result;
+}
 
 int randomCount(Scope sc)
 {
