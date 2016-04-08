@@ -137,8 +137,24 @@ void mutateBinary(BinaryExpression e)
 
 Expression randomExpr()
 {
-  auto r = new NumberExpression;
-  r.value = uniform(-100, 100);
-  return r;
+  switch(uniform(0, 2))
+  {
+  case 0:
+    {
+      auto r = new NumberExpression;
+      r.value = uniform(-100, 100);
+      return r;
+    }
+
+  case 1:
+    {
+      auto r = new BinaryExpression;
+      r.operands[0] = new NumberExpression();
+      r.operands[1] = new NumberExpression();
+      return r;
+    }
+  default:
+    assert(0);
+  }
 }
 
