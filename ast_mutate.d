@@ -14,6 +14,7 @@
  */
 
 import std.stdio;
+import std.string;
 import entropy;
 import ast;
 import ast_visit;
@@ -67,7 +68,7 @@ void mutateIf(IfStatement s)
 
 Statement randomStatement()
 {
-  switch(uniform(0, 4))
+  switch(uniform(0, 5))
   {
   case 0:
     {
@@ -91,6 +92,14 @@ Statement randomStatement()
     {
       auto s = new VariableDeclarationStatement;
       s.name = "i";
+      return s;
+    }
+  case 4:
+    {
+      auto s = new FunctionDeclarationStatement;
+      static counter = 0;
+      s.name = format("f%s", counter++);
+      s.body_ = new BlockStatement;
       return s;
     }
   default:
