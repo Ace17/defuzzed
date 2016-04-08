@@ -70,24 +70,32 @@ void depthFirstGenerate(File f)
 void breadthFirstGenerate(File f)
 {
   import ast;
-  import ast_print;
-  import ast_mutate;
   import ast_check;
+  import ast_clone;
+  import ast_mutate;
+  import ast_print;
 
   auto getValidRandomProgram()
   {
-    for(;;)
+    Statement tree;
+
     {
-      auto tree = new FunctionDeclarationStatement;
-      tree.name = "f";
-      tree.body_ = new BlockStatement;
-
-      for(int i = 0; i < 10; ++i)
-        mutateStatement(tree);
-
-      if(checkStatement(tree))
-        return tree;
+      auto func = new FunctionDeclarationStatement;
+      func.name = "f";
+      func.body_ = new BlockStatement;
+      tree = func;
     }
+
+    for(int i = 0; i < 10; ++i)
+    {
+      auto mutatedTree = cloneStatement(tree);
+      mutateStatement(mutatedTree);
+
+      if(checkStatement(mutatedTree))
+        tree = mutatedTree;
+    }
+
+    return tree;
   }
 
   auto tree = getValidRandomProgram();

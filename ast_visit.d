@@ -18,6 +18,7 @@ import ast;
 auto visitStatement(alias visitFunctionDeclaration, alias visitVariableDeclaration, alias visitBlock, alias visitWhile, alias visitIf, T...)
   (Statement s, T extraArgs)
 {
+  assert(s);
   if(auto stmt = cast(FunctionDeclarationStatement)s)
   {
     return visitFunctionDeclaration(stmt, extraArgs);
