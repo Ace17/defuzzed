@@ -25,14 +25,29 @@ void printStatement(Statement s, File f)
 void printStatement(Statement s, Printer f)
 {
   visitStatement!(
-    printDeclaration,
+    printFunctionDeclaration,
+    printVariableDeclaration,
     printBlock,
     printWhile,
     printIf)
     (s, f);
 }
 
-void printDeclaration(DeclarationStatement s, Printer f)
+void printFunctionDeclaration(FunctionDeclarationStatement s, Printer f)
+{
+  f.writefln("void %s()", s.name);
+
+  f.writeln("{");
+
+  {
+    auto id = f.indent();
+    printStatement(s.body_, f);
+  }
+
+  f.writeln("}");
+}
+
+void printVariableDeclaration(VariableDeclarationStatement s, Printer f)
 {
   f.writef("int %s", s.name);
 

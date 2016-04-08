@@ -17,7 +17,13 @@ class Statement
 {
 }
 
-class DeclarationStatement : Statement
+class FunctionDeclarationStatement : Statement
+{
+  string name;
+  Statement body_;
+}
+
+class VariableDeclarationStatement : Statement
 {
   string name;
   Expression initializer;

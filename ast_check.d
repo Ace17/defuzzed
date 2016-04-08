@@ -21,14 +21,23 @@ import scope_;
 bool checkStatement(Statement s, Scope sc = new Scope)
 {
   return visitStatement!(
-    checkDeclaration,
+    checkFunctionDeclaration,
+    checkVariableDeclaration,
     checkBlock,
     checkWhile,
     checkIf)
            (s, sc);
 }
 
-bool checkDeclaration(DeclarationStatement s, Scope sc)
+bool checkFunctionDeclaration(FunctionDeclarationStatement s, Scope sc)
+{
+  if(!checkStatement(s.body_, sc))
+    return false;
+
+  return true;
+}
+
+bool checkVariableDeclaration(VariableDeclarationStatement s, Scope sc)
 {
   auto syms = sc.getVisibleSymbols();
 

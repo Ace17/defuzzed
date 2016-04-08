@@ -78,7 +78,9 @@ void breadthFirstGenerate(File f)
   {
     for(;;)
     {
-      auto tree = new BlockStatement;
+      auto tree = new FunctionDeclarationStatement;
+      tree.name = "f";
+      tree.body_ = new BlockStatement;
 
       for(int i = 0; i < 10; ++i)
         mutateStatement(tree);
@@ -90,10 +92,7 @@ void breadthFirstGenerate(File f)
 
   auto tree = getValidRandomProgram();
 
-  f.writeln("void f()");
-  f.writeln("{");
   printStatement(tree, f);
-  f.writeln("}");
 
   f.writeln();
 }

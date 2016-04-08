@@ -23,14 +23,20 @@ import ast_visit;
 void mutateStatement(Statement s)
 {
   visitStatement!(
-    mutateDeclaration,
+    mutateFunctionDeclaration,
+    mutateVariableDeclaration,
     mutateBlock,
     mutateWhile,
     mutateIf)
     (s);
 }
 
-void mutateDeclaration(DeclarationStatement s)
+void mutateFunctionDeclaration(FunctionDeclarationStatement s)
+{
+  mutateStatement(s.body_);
+}
+
+void mutateVariableDeclaration(VariableDeclarationStatement s)
 {
   if(s.initializer)
     mutateExpression(s.initializer);
@@ -83,7 +89,7 @@ Statement randomStatement()
     }
   case 3:
     {
-      auto s = new DeclarationStatement;
+      auto s = new VariableDeclarationStatement;
       s.name = "i";
       return s;
     }
