@@ -14,7 +14,7 @@
  */
 
 import std.stdio;
-import std.random;
+import entropy;
 import ast;
 import ast_visit;
 

@@ -56,5 +56,10 @@ int uniform(int min, long max)
   return std.random.uniform(min, cast(int)max, gen);
 }
 
+int dice(in int[] probs)
+{
+  return cast(int)std.random.dice(gen, probs);
+}
+
 Random gen;
 
