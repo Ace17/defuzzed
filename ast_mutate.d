@@ -31,6 +31,7 @@ void mutateStatement(Statement s)
 
 void mutateBlock(BlockStatement s)
 {
+  s.sub ~= randomStatement();
 }
 
 void mutateWhile(WhileStatement s)
@@ -41,6 +42,36 @@ void mutateWhile(WhileStatement s)
 void mutateIf(IfStatement s)
 {
   mutateExpression(s.condition);
+
+  if(!s.thenBody)
+    s.thenBody = randomStatement();
+}
+
+Statement randomStatement()
+{
+  switch(uniform(0, 3))
+  {
+  case 0:
+    {
+      auto s = new IfStatement;
+      s.condition = randomExpr();
+      s.thenBody = new BlockStatement;
+      return s;
+    }
+  case 1:
+    {
+      return new BlockStatement;
+    }
+  case 2:
+    {
+      auto s = new WhileStatement;
+      s.condition = randomExpr();
+      s.body_ = new BlockStatement;
+      return s;
+    }
+  default:
+    assert(0);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

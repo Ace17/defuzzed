@@ -73,20 +73,7 @@ void breadthFirstGenerate(File f)
   import ast_print;
   import ast_mutate;
 
-  Statement createInitialAst()
-  {
-    auto root = new BinaryExpression;
-    root.operands[0] = new NumberExpression;
-    root.operands[1] = new NumberExpression;
-
-    auto top = new WhileStatement;
-    top.condition = root;
-    top.body_ = new BlockStatement;
-
-    return top;
-  }
-
-  auto tree = createInitialAst();
+  auto tree = new BlockStatement;
 
   for(int i = 0; i < 10; ++i)
     mutateStatement(tree);

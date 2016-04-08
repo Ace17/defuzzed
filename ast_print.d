@@ -29,6 +29,10 @@ void printStatement(Statement s, File f)
 void printBlock(BlockStatement s, File f)
 {
   f.writeln("{");
+
+  foreach(stmt; s.sub)
+    printStatement(stmt, f);
+
   f.writeln("}");
 }
 
