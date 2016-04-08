@@ -283,8 +283,7 @@ void generateForLoop(File f, Scope sc)
 
 void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFuncs)
 {
-  auto generator = genFuncs[uniform(0, cast(int)$)];
-  generator(f, sc);
+  callRandomOne(genFuncs, f, sc);
 }
 
 string getRandomRValue(Scope sc)

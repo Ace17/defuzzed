@@ -61,5 +61,11 @@ int dice(in int[] probs)
   return cast(int)std.random.dice(gen, probs);
 }
 
+R callRandomOne(R, T...)(in R function(T)[] funcs, T args)
+{
+  auto f = funcs[uniform(0, cast(int)$)];
+  return f(args);
+}
+
 Random gen;
 

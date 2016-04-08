@@ -82,35 +82,36 @@ void mutateIf(IfStatement s)
 
 Statement randomStatement()
 {
-  switch(uniform(0, 4))
+  static Statement onIf()
   {
-  case 0:
-    {
-      auto s = new IfStatement;
-      s.condition = randomExpr();
-      s.thenBody = new BlockStatement;
-      return s;
-    }
-  case 1:
-    {
-      return new BlockStatement;
-    }
-  case 2:
-    {
-      auto s = new WhileStatement;
-      s.condition = randomExpr();
-      s.body_ = new BlockStatement;
-      return s;
-    }
-  case 3:
-    {
-      auto s = new DeclarationStatement;
-      s.declaration = randomDeclaration();
-      return s;
-    }
-  default:
-    assert(0);
+    auto s = new IfStatement;
+    s.condition = randomExpr();
+    s.thenBody = new BlockStatement;
+    return s;
   }
+
+  static Statement onBlock()
+  {
+    return new BlockStatement;
+  }
+
+  static Statement onWhile()
+  {
+    auto s = new WhileStatement;
+    s.condition = randomExpr();
+    s.body_ = new BlockStatement;
+    return s;
+  }
+
+  static Statement onDecl()
+  {
+    auto s = new DeclarationStatement;
+    s.declaration = randomDeclaration();
+    return s;
+  }
+
+  static const funcs = [&onIf, &onBlock, &onWhile, &onDecl ];
+  return callRandomOne!Statement(funcs);
 }
 
 Declaration randomDeclaration()
