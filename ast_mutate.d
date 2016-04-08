@@ -110,8 +110,8 @@ Statement randomStatement()
     return s;
   }
 
-  static const funcs = [&onIf, &onBlock, &onWhile, &onDecl ];
-  return callRandomOne!Statement(funcs);
+  static const funcs = [&onIf, &onBlock, &onWhile, &onDecl];
+  return callRandomOne(funcs);
 }
 
 Declaration randomDeclaration()

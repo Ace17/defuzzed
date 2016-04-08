@@ -115,14 +115,14 @@ void generateDeclarations(File f, Scope sc)
 
 void generateDeclaration(File f, Scope sc)
 {
-  generateRandomOne(f, sc,
-                    [
-                      &generateClass,
-                      &generateUnion,
-                      &generateStruct,
-                      &generateFunction,
-                      &generateInterface,
-                    ]);
+  callRandomOne(
+    [
+      &generateClass,
+      &generateUnion,
+      &generateStruct,
+      &generateFunction,
+      &generateInterface,
+    ], f, sc);
 }
 
 void generateClass(File f, Scope sc)
@@ -200,13 +200,14 @@ void generateStatements(File f, Scope sc)
 
 void generateStatement(File f, Scope sc)
 {
-  generateRandomOne(f, sc,
-                    [
-                      &generateFunctionCall,
-                      &generateIfStatement,
-                      &generateForLoop,
-                      &generateVarDecl,
-                    ]);
+  callRandomOne(
+    [
+      &generateFunctionCall,
+      &generateIfStatement,
+      &generateForLoop,
+      &generateVarDecl,
+    ],
+    f, sc);
 }
 
 void generateFunctionCall(File f, Scope sc)
@@ -279,11 +280,6 @@ void generateForLoop(File f, Scope sc)
   f.writefln("{");
   generateStatements(f, sc.sub());
   f.writefln("}");
-}
-
-void generateRandomOne(File f, Scope sc, void function(File f, Scope sc)[] genFuncs)
-{
-  callRandomOne(genFuncs, f, sc);
 }
 
 string getRandomRValue(Scope sc)
