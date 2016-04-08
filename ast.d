@@ -13,20 +13,31 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
-class Statement
+class Declaration
 {
 }
 
-class FunctionDeclarationStatement : Statement
+class FunctionDeclaration : Declaration
 {
   string name;
   Statement body_;
 }
 
-class VariableDeclarationStatement : Statement
+class VariableDeclaration : Declaration
 {
   string name;
   Expression initializer;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Statement
+{
+}
+
+class DeclarationStatement : Statement
+{
+  Declaration declaration;
 }
 
 class BlockStatement : Statement

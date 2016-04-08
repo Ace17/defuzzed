@@ -18,42 +18,56 @@ import ast;
 import ast_visit;
 import scope_;
 
-bool checkStatement(Statement s, Scope sc = new Scope)
+bool checkDeclaration(Declaration d, Scope sc = new Scope)
+{
+  return visitDeclaration!(
+    checkFunction,
+    checkVariable)
+           (d, sc);
+}
+
+bool checkFunction(FunctionDeclaration d, Scope sc)
+{
+  if(!checkStatement(d.body_, sc))
+    return false;
+
+  return true;
+}
+
+bool checkVariable(VariableDeclaration d, Scope sc)
+{
+  auto syms = sc.getVisibleSymbols();
+
+  foreach(sym; syms)
+    if(sym.name == d.name)
+      return false;
+
+  if(d.initializer)
+  {
+    if(!checkExpression(d.initializer, sc))
+      return false;
+  }
+
+  auto sym = Scope.Symbol(d.name, Scope.Symbol.FL_VARIABLE, "int");
+  sc.addSymbol(sym);
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool checkStatement(Statement s, Scope sc)
 {
   return visitStatement!(
-    checkFunctionDeclaration,
-    checkVariableDeclaration,
+    checkDeclarationS,
     checkBlock,
     checkWhile,
     checkIf)
            (s, sc);
 }
 
-bool checkFunctionDeclaration(FunctionDeclarationStatement s, Scope sc)
+bool checkDeclarationS(DeclarationStatement s, Scope sc)
 {
-  if(!checkStatement(s.body_, sc))
-    return false;
-
-  return true;
-}
-
-bool checkVariableDeclaration(VariableDeclarationStatement s, Scope sc)
-{
-  auto syms = sc.getVisibleSymbols();
-
-  foreach(sym; syms)
-    if(sym.name == s.name)
-      return false;
-
-  if(s.initializer)
-  {
-    if(!checkExpression(s.initializer, sc))
-      return false;
-  }
-
-  auto sym = Scope.Symbol(s.name, Scope.Symbol.FL_VARIABLE, "int");
-  sc.addSymbol(sym);
-  return true;
+  return checkDeclaration(s.declaration, sc);
 }
 
 bool checkBlock(BlockStatement s, Scope sc)

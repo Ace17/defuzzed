@@ -17,47 +17,61 @@ import std.stdio: File;
 import ast;
 import ast_visit;
 
-void printStatement(Statement s, File f)
+void printDeclaration(Declaration d, File f)
 {
-  printStatement(s, new Printer(f));
+  printDeclaration(d, new Printer(f));
 }
+
+void printDeclaration(Declaration d, Printer f)
+{
+  visitDeclaration!(
+    printFunction,
+    printVariable)
+    (d, f);
+}
+
+void printFunction(FunctionDeclaration d, Printer f)
+{
+  f.writefln("void %s()", d.name);
+
+  f.writeln("{");
+
+  {
+    auto id = f.indent();
+    printStatement(d.body_, f);
+  }
+
+  f.writeln("}");
+}
+
+void printVariable(VariableDeclaration d, Printer f)
+{
+  f.writef("int %s", d.name);
+
+  if(d.initializer)
+  {
+    f.writef(" = ");
+    printExpression(d.initializer, f);
+  }
+
+  f.writefln(";");
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void printStatement(Statement s, Printer f)
 {
   visitStatement!(
-    printFunctionDeclaration,
-    printVariableDeclaration,
+    printDeclarationS,
     printBlock,
     printWhile,
     printIf)
     (s, f);
 }
 
-void printFunctionDeclaration(FunctionDeclarationStatement s, Printer f)
+void printDeclarationS(DeclarationStatement s, Printer f)
 {
-  f.writefln("void %s()", s.name);
-
-  f.writeln("{");
-
-  {
-    auto id = f.indent();
-    printStatement(s.body_, f);
-  }
-
-  f.writeln("}");
-}
-
-void printVariableDeclaration(VariableDeclarationStatement s, Printer f)
-{
-  f.writef("int %s", s.name);
-
-  if(s.initializer)
-  {
-    f.writef(" = ");
-    printExpression(s.initializer, f);
-  }
-
-  f.writefln(";");
+  printDeclaration(s.declaration, f);
 }
 
 void printBlock(BlockStatement s, Printer f)

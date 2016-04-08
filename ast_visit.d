@@ -15,17 +15,31 @@
 
 import ast;
 
-auto visitStatement(alias visitFunctionDeclaration, alias visitVariableDeclaration, alias visitBlock, alias visitWhile, alias visitIf, T...)
+auto visitDeclaration(alias visitFunction, alias visitVariable, T...)
+  (Declaration d, T extraArgs)
+{
+  assert(d);
+
+  if(auto stmt = cast(FunctionDeclaration)d)
+  {
+    return visitFunction(stmt, extraArgs);
+  }
+  else if(auto stmt = cast(VariableDeclaration)d)
+  {
+    return visitVariable(stmt, extraArgs);
+  }
+  else
+    assert(0);
+}
+
+auto visitStatement(alias visitDeclaration, alias visitBlock, alias visitWhile, alias visitIf, T...)
   (Statement s, T extraArgs)
 {
   assert(s);
-  if(auto stmt = cast(FunctionDeclarationStatement)s)
+
+  if(auto stmt = cast(DeclarationStatement)s)
   {
-    return visitFunctionDeclaration(stmt, extraArgs);
-  }
-  else if(auto stmt = cast(VariableDeclarationStatement)s)
-  {
-    return visitVariableDeclaration(stmt, extraArgs);
+    return visitDeclaration(stmt, extraArgs);
   }
   else if(auto stmt = cast(BlockStatement)s)
   {

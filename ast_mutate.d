@@ -21,28 +21,42 @@ import ast_visit;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void mutateDeclaration(Declaration d)
+{
+  visitDeclaration!(
+    mutateFunction,
+    mutateVariable)
+    (d);
+}
+
+void mutateFunction(FunctionDeclaration d)
+{
+  mutateStatement(d.body_);
+}
+
+void mutateVariable(VariableDeclaration d)
+{
+  if(d.initializer)
+    mutateExpression(d.initializer);
+  else
+    d.initializer = randomExpr();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void mutateStatement(Statement s)
 {
   visitStatement!(
-    mutateFunctionDeclaration,
-    mutateVariableDeclaration,
+    mutateDeclarationS,
     mutateBlock,
     mutateWhile,
     mutateIf)
     (s);
 }
 
-void mutateFunctionDeclaration(FunctionDeclarationStatement s)
+void mutateDeclarationS(DeclarationStatement s)
 {
-  mutateStatement(s.body_);
-}
-
-void mutateVariableDeclaration(VariableDeclarationStatement s)
-{
-  if(s.initializer)
-    mutateExpression(s.initializer);
-  else
-    s.initializer = randomExpr();
+  mutateDeclaration(s.declaration);
 }
 
 void mutateBlock(BlockStatement s)
@@ -68,7 +82,7 @@ void mutateIf(IfStatement s)
 
 Statement randomStatement()
 {
-  switch(uniform(0, 5))
+  switch(uniform(0, 4))
   {
   case 0:
     {
@@ -90,20 +104,30 @@ Statement randomStatement()
     }
   case 3:
     {
-      auto s = new VariableDeclarationStatement;
-      s.name = "i";
-      return s;
-    }
-  case 4:
-    {
-      auto s = new FunctionDeclarationStatement;
-      static counter = 0;
-      s.name = format("f%s", counter++);
-      s.body_ = new BlockStatement;
+      auto s = new DeclarationStatement;
+      s.declaration = randomDeclaration();
       return s;
     }
   default:
     assert(0);
+  }
+}
+
+Declaration randomDeclaration()
+{
+  if(uniform(0, 2))
+  {
+    auto r = new VariableDeclaration;
+    r.name = "i";
+    return r;
+  }
+  else
+  {
+    auto r = new FunctionDeclaration;
+    static counter = 0;
+    r.name = format("f%s", counter++);
+    r.body_ = new BlockStatement;
+    return r;
   }
 }
 

@@ -18,33 +18,49 @@ import ast;
 import ast_visit;
 import scope_;
 
+Declaration cloneDeclaration(Declaration d)
+{
+  return visitDeclaration!(
+    cloneFunction,
+    cloneVariable)
+           (d);
+}
+
+Declaration cloneFunction(FunctionDeclaration d)
+{
+  auto r = new FunctionDeclaration;
+  r.name = d.name;
+  r.body_ = cloneStatement(d.body_);
+  return r;
+}
+
+Declaration cloneVariable(VariableDeclaration d)
+{
+  auto r = new VariableDeclaration;
+  r.name = d.name;
+
+  if(d.initializer)
+    r.initializer = cloneExpression(d.initializer);
+
+  return r;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Statement cloneStatement(Statement s)
 {
   return visitStatement!(
-    cloneFunctionDeclaration,
-    cloneVariableDeclaration,
+    cloneDeclarationS,
     cloneBlock,
     cloneWhile,
     cloneIf)
            (s);
 }
 
-Statement cloneFunctionDeclaration(FunctionDeclarationStatement s)
+Statement cloneDeclarationS(DeclarationStatement s)
 {
-  auto r = new FunctionDeclarationStatement;
-  r.name = s.name;
-  r.body_ = cloneStatement(s.body_);
-  return r;
-}
-
-Statement cloneVariableDeclaration(VariableDeclarationStatement s)
-{
-  auto r = new VariableDeclarationStatement;
-  r.name = s.name;
-
-  if(s.initializer)
-    r.initializer = cloneExpression(s.initializer);
-
+  auto r = new DeclarationStatement;
+  r.declaration = cloneDeclaration(s.declaration);
   return r;
 }
 
@@ -74,6 +90,7 @@ Statement cloneIf(IfStatement s)
 
   r.condition = cloneExpression(s.condition);
   r.thenBody = cloneStatement(s.thenBody);
+
   if(s.elseBody)
     r.elseBody = cloneStatement(s.elseBody);
 

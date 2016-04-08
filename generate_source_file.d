@@ -77,10 +77,10 @@ void breadthFirstGenerate(File f)
 
   auto getValidRandomProgram()
   {
-    Statement tree;
+    Declaration tree;
 
     {
-      auto func = new FunctionDeclarationStatement;
+      auto func = new FunctionDeclaration;
       func.name = "f";
       func.body_ = new BlockStatement;
       tree = func;
@@ -88,10 +88,10 @@ void breadthFirstGenerate(File f)
 
     for(int i = 0; i < 10; ++i)
     {
-      auto mutatedTree = cloneStatement(tree);
-      mutateStatement(mutatedTree);
+      auto mutatedTree = cloneDeclaration(tree);
+      mutateDeclaration(mutatedTree);
 
-      if(checkStatement(mutatedTree))
+      if(checkDeclaration(mutatedTree))
         tree = mutatedTree;
     }
 
@@ -100,7 +100,7 @@ void breadthFirstGenerate(File f)
 
   auto tree = getValidRandomProgram();
 
-  printStatement(tree, f);
+  printDeclaration(tree, f);
 
   f.writeln();
 }
