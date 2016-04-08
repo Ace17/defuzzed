@@ -13,11 +13,16 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
-import std.stdio;
+import std.stdio: File;
 import ast;
 import ast_visit;
 
 void printStatement(Statement s, File f)
+{
+  printStatement(s, new Printer(f));
+}
+
+void printStatement(Statement s, Printer f)
 {
   visitStatement!(
     printDeclaration,
@@ -27,7 +32,7 @@ void printStatement(Statement s, File f)
     (s, f);
 }
 
-void printDeclaration(DeclarationStatement s, File f)
+void printDeclaration(DeclarationStatement s, Printer f)
 {
   f.writef("int %s", s.name);
 
@@ -40,17 +45,21 @@ void printDeclaration(DeclarationStatement s, File f)
   f.writefln(";");
 }
 
-void printBlock(BlockStatement s, File f)
+void printBlock(BlockStatement s, Printer f)
 {
   f.writeln("{");
 
-  foreach(stmt; s.sub)
-    printStatement(stmt, f);
+  {
+    auto id = f.indent();
+
+    foreach(stmt; s.sub)
+      printStatement(stmt, f);
+  }
 
   f.writeln("}");
 }
 
-void printWhile(WhileStatement s, File f)
+void printWhile(WhileStatement s, Printer f)
 {
   f.writef("while(");
   printExpression(s.condition, f);
@@ -60,7 +69,7 @@ void printWhile(WhileStatement s, File f)
   printStatement(s.body_, f);
 }
 
-void printIf(IfStatement s, File f)
+void printIf(IfStatement s, Printer f)
 {
   f.writef("if(");
   printExpression(s.condition, f);
@@ -68,21 +77,27 @@ void printIf(IfStatement s, File f)
   f.writeln();
 
   f.writeln("{");
-  printStatement(s.thenBody, f);
+  {
+    auto id1 = f.indent();
+    printStatement(s.thenBody, f);
+  }
   f.writeln("}");
 
   if(s.elseBody)
   {
     f.writeln("else");
     f.writeln("{");
-    printStatement(s.elseBody, f);
+    {
+      auto id2 = f.indent();
+      printStatement(s.elseBody, f);
+    }
     f.writeln("}");
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void printExpression(Expression e, File f)
+void printExpression(Expression e, Printer f)
 {
   visitExpression!(
     printNumber,
@@ -90,7 +105,7 @@ void printExpression(Expression e, File f)
     (e, f);
 }
 
-void printNumber(NumberExpression e, File f)
+void printNumber(NumberExpression e, Printer f)
 {
   if(e.value < 0)
     f.writef("(");
@@ -101,12 +116,79 @@ void printNumber(NumberExpression e, File f)
     f.writef(")");
 }
 
-void printBinary(BinaryExpression e, File f)
+void printBinary(BinaryExpression e, Printer f)
 {
   f.writef("(");
   printExpression(e.operands[0], f);
   f.writef("%s", e.operator);
   printExpression(e.operands[1], f);
   f.writef(")");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+private:
+class Printer
+{
+  this(File f_)
+  {
+    f = f_;
+  }
+
+  auto indent()
+  {
+    static struct ScopedIndenter
+    {
+      this(Printer parent_)
+      {
+        parent = parent_;
+        parent.indentLevel++;
+      }
+
+      ~this()
+      {
+        parent.indentLevel--;
+      }
+
+      Printer parent;
+    }
+
+    return ScopedIndenter(this);
+  }
+
+  void writef(T...)(string fmt, T args)
+  {
+    indentIfNeeded();
+    f.writef(fmt, args);
+  }
+
+  void writefln(T...)(string fmt, T args)
+  {
+    indentIfNeeded();
+    f.writefln(fmt, args);
+    emptyLineFlag = true;
+  }
+
+  void writeln(string line = "")
+  {
+    indentIfNeeded();
+    f.writeln(line);
+    emptyLineFlag = true;
+  }
+
+  void indentIfNeeded()
+  {
+    if(!emptyLineFlag)
+      return;
+
+    for(int i = 0; i < indentLevel; ++i)
+      f.writef("  ");
+
+    emptyLineFlag = false;
+  }
+
+  File f;
+  int indentLevel;
+  bool emptyLineFlag = true;
 }
 

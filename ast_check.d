@@ -50,6 +50,7 @@ bool checkDeclaration(DeclarationStatement s, Scope sc)
 bool checkBlock(BlockStatement s, Scope sc)
 {
   auto subScope = sc.sub();
+
   foreach(stmt; s.sub)
     if(!checkStatement(stmt, subScope))
       return false;
