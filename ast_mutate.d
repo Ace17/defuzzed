@@ -40,6 +40,9 @@ void mutateDeclaration(DeclarationStatement s)
 
 void mutateBlock(BlockStatement s)
 {
+  foreach(sub; s.sub)
+    mutateStatement(sub);
+
   s.sub ~= randomStatement();
 }
 
