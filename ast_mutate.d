@@ -23,10 +23,19 @@ import ast_visit;
 void mutateStatement(Statement s)
 {
   visitStatement!(
+    mutateDeclaration,
     mutateBlock,
     mutateWhile,
     mutateIf)
     (s);
+}
+
+void mutateDeclaration(DeclarationStatement s)
+{
+  if(s.initializer)
+    mutateExpression(s.initializer);
+  else
+    s.initializer = randomExpr();
 }
 
 void mutateBlock(BlockStatement s)
@@ -49,7 +58,7 @@ void mutateIf(IfStatement s)
 
 Statement randomStatement()
 {
-  switch(uniform(0, 3))
+  switch(uniform(0, 4))
   {
   case 0:
     {
@@ -67,6 +76,12 @@ Statement randomStatement()
       auto s = new WhileStatement;
       s.condition = randomExpr();
       s.body_ = new BlockStatement;
+      return s;
+    }
+  case 3:
+    {
+      auto s = new DeclarationStatement;
+      s.name = "i";
       return s;
     }
   default:

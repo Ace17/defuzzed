@@ -72,11 +72,23 @@ void breadthFirstGenerate(File f)
   import ast;
   import ast_print;
   import ast_mutate;
+  import ast_check;
 
-  auto tree = new BlockStatement;
+  auto getValidRandomProgram()
+  {
+    for(;;)
+    {
+      auto tree = new BlockStatement;
 
-  for(int i = 0; i < 10; ++i)
-    mutateStatement(tree);
+      for(int i = 0; i < 10; ++i)
+        mutateStatement(tree);
+
+      if(checkStatement(tree))
+        return tree;
+    }
+  }
+
+  auto tree = getValidRandomProgram();
 
   f.writeln("void f()");
   f.writeln("{");

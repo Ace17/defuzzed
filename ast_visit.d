@@ -15,35 +15,39 @@
 
 import ast;
 
-void visitStatement(alias visitBlock, alias visitWhile, alias visitIf, T...)
+auto visitStatement(alias visitDeclaration, alias visitBlock, alias visitWhile, alias visitIf, T...)
   (Statement s, T extraArgs)
 {
-  if(auto stmt = cast(BlockStatement)s)
+  if(auto stmt = cast(DeclarationStatement)s)
   {
-    visitBlock(stmt, extraArgs);
+    return visitDeclaration(stmt, extraArgs);
+  }
+  else if(auto stmt = cast(BlockStatement)s)
+  {
+    return visitBlock(stmt, extraArgs);
   }
   else if(auto stmt = cast(WhileStatement)s)
   {
-    visitWhile(stmt, extraArgs);
+    return visitWhile(stmt, extraArgs);
   }
   else if(auto stmt = cast(IfStatement)s)
   {
-    visitIf(stmt, extraArgs);
+    return visitIf(stmt, extraArgs);
   }
   else
     assert(0);
 }
 
-void visitExpression(alias visitNumber, alias visitBinary, T...)
+auto visitExpression(alias visitNumber, alias visitBinary, T...)
   (Expression e, T extraArgs)
 {
   if(auto expr = cast(NumberExpression)e)
   {
-    visitNumber(expr, extraArgs);
+    return visitNumber(expr, extraArgs);
   }
   else if(auto expr = cast(BinaryExpression)e)
   {
-    visitBinary(expr, extraArgs);
+    return visitBinary(expr, extraArgs);
   }
   else
     assert(0);

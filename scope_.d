@@ -62,6 +62,11 @@ class Scope
     return name;
   }
 
+  void addSymbol(Symbol sym)
+  {
+    symbols ~= sym;
+  }
+
   string addVariable(string type = "int")
   {
     for(int i = 0;; ++i)

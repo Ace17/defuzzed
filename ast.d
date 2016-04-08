@@ -17,6 +17,12 @@ class Statement
 {
 }
 
+class DeclarationStatement : Statement
+{
+  string name;
+  Expression initializer;
+}
+
 class BlockStatement : Statement
 {
   Statement[] sub;

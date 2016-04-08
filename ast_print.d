@@ -20,10 +20,24 @@ import ast_visit;
 void printStatement(Statement s, File f)
 {
   visitStatement!(
+    printDeclaration,
     printBlock,
     printWhile,
     printIf)
     (s, f);
+}
+
+void printDeclaration(DeclarationStatement s, File f)
+{
+  f.writef("int %s", s.name);
+
+  if(s.initializer)
+  {
+    f.writef(" = ");
+    printExpression(s.initializer, f);
+  }
+
+  f.writefln(";");
 }
 
 void printBlock(BlockStatement s, File f)
