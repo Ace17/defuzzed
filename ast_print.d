@@ -25,9 +25,26 @@ void printDeclaration(Declaration d, File f)
 void printDeclaration(Declaration d, Printer f)
 {
   visitDeclaration!(
+    printClass,
     printFunction,
     printVariable)
     (d, f);
+}
+
+void printClass(ClassDeclaration d, Printer f)
+{
+  f.writefln("class %s", d.name);
+
+  f.writeln("{");
+
+  {
+    auto id = f.indent();
+
+    foreach(decl; d.declarations)
+      printDeclaration(decl, f);
+  }
+
+  f.writeln("}");
 }
 
 void printFunction(FunctionDeclaration d, Printer f)

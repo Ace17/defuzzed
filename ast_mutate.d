@@ -24,9 +24,18 @@ import ast_visit;
 void mutateDeclaration(Declaration d)
 {
   visitDeclaration!(
+    mutateClass,
     mutateFunction,
     mutateVariable)
     (d);
+}
+
+void mutateClass(ClassDeclaration d)
+{
+  if(d.declarations.length > 0 && uniform(0, 2))
+    mutateDeclaration(d.declarations[uniform(0, $)]);
+  else
+    d.declarations ~= randomDeclaration();
 }
 
 void mutateFunction(FunctionDeclaration d)
@@ -122,12 +131,19 @@ Declaration randomDeclaration()
     r.name = "i";
     return r;
   }
-  else
+  else if(uniform(0, 2))
   {
     auto r = new FunctionDeclaration;
     static counter = 0;
     r.name = format("f%s", counter++);
     r.body_ = new BlockStatement;
+    return r;
+  }
+  else
+  {
+    auto r = new ClassDeclaration;
+    static classCounter = 0;
+    r.name = format("C%s", classCounter++);
     return r;
   }
 }

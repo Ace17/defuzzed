@@ -15,18 +15,22 @@
 
 import ast;
 
-auto visitDeclaration(alias visitFunction, alias visitVariable, T...)
+auto visitDeclaration(alias visitClass, alias visitFunction, alias visitVariable, T...)
   (Declaration d, T extraArgs)
 {
   assert(d);
 
-  if(auto stmt = cast(FunctionDeclaration)d)
+  if(auto decl = cast(ClassDeclaration)d)
   {
-    return visitFunction(stmt, extraArgs);
+    return visitClass(decl, extraArgs);
   }
-  else if(auto stmt = cast(VariableDeclaration)d)
+  else if(auto decl = cast(FunctionDeclaration)d)
   {
-    return visitVariable(stmt, extraArgs);
+    return visitFunction(decl, extraArgs);
+  }
+  else if(auto decl = cast(VariableDeclaration)d)
+  {
+    return visitVariable(decl, extraArgs);
   }
   else
     assert(0);

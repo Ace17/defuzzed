@@ -17,6 +17,12 @@ class Declaration
 {
 }
 
+class ClassDeclaration : Declaration
+{
+  string name;
+  Declaration[] declarations;
+}
+
 class FunctionDeclaration : Declaration
 {
   string name;

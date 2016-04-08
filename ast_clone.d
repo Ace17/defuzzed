@@ -21,9 +21,21 @@ import scope_;
 Declaration cloneDeclaration(Declaration d)
 {
   return visitDeclaration!(
+    cloneClass,
     cloneFunction,
     cloneVariable)
            (d);
+}
+
+Declaration cloneClass(ClassDeclaration d)
+{
+  auto r = new ClassDeclaration;
+  r.name = d.name;
+
+  foreach(decl; d.declarations)
+    r.declarations ~= cloneDeclaration(decl);
+
+  return r;
 }
 
 Declaration cloneFunction(FunctionDeclaration d)

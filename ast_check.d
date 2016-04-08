@@ -21,9 +21,19 @@ import scope_;
 bool checkDeclaration(Declaration d, Scope sc = new Scope)
 {
   return visitDeclaration!(
+    checkClass,
     checkFunction,
     checkVariable)
            (d, sc);
+}
+
+bool checkClass(ClassDeclaration d, Scope sc)
+{
+  foreach(decl; d.declarations)
+    if(!checkDeclaration(decl, sc))
+      return false;
+
+  return true;
 }
 
 bool checkFunction(FunctionDeclaration d, Scope sc)
