@@ -226,8 +226,10 @@ void generateVarDecl(File f, Scope sc)
     const name = sc.addVariable();
     const type = initializer ? "auto" : "int";
     f.writef("%s %s", type, name);
+
     if(initializer)
       f.writef("= %s", initializer);
+
     f.writeln(";");
   }
   else
