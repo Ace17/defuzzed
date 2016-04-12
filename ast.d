@@ -19,6 +19,7 @@ class Declaration
 
 class ClassDeclaration : Declaration
 {
+  bool isInterface;
   string name;
   Declaration[] declarations;
 }

@@ -42,7 +42,10 @@ Declaration cloneFunction(FunctionDeclaration d)
 {
   auto r = new FunctionDeclaration;
   r.name = d.name;
-  r.body_ = cloneStatement(d.body_);
+
+  if(d.body_)
+    r.body_ = cloneStatement(d.body_);
+
   return r;
 }
 

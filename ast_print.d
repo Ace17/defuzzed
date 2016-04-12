@@ -33,7 +33,10 @@ void printDeclaration(Declaration d, Printer f)
 
 void printClass(ClassDeclaration d, Printer f)
 {
-  f.writefln("class %s", d.name);
+  if(d.isInterface)
+    f.writefln("interface %s", d.name);
+  else
+    f.writefln("class %s", d.name);
 
   f.writeln("{");
 
@@ -49,16 +52,24 @@ void printClass(ClassDeclaration d, Printer f)
 
 void printFunction(FunctionDeclaration d, Printer f)
 {
-  f.writefln("void %s()", d.name);
+  f.writef("void %s()", d.name);
 
-  f.writeln("{");
-
+  if(d.body_)
   {
-    auto id = f.indent();
-    printStatement(d.body_, f);
-  }
+    f.writeln();
+    f.writeln("{");
 
-  f.writeln("}");
+    {
+      auto id = f.indent();
+      printStatement(d.body_, f);
+    }
+
+    f.writeln("}");
+  }
+  else
+  {
+    f.writeln(";");
+  }
 }
 
 void printVariable(VariableDeclaration d, Printer f)

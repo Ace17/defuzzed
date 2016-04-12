@@ -40,7 +40,8 @@ void mutateClass(ClassDeclaration d)
 
 void mutateFunction(FunctionDeclaration d)
 {
-  mutateStatement(d.body_);
+  if(d.body_)
+    mutateStatement(d.body_);
 }
 
 void mutateVariable(VariableDeclaration d)
@@ -136,7 +137,10 @@ Declaration randomDeclaration()
     auto r = new FunctionDeclaration;
     static counter = 0;
     r.name = format("f%s", counter++);
-    r.body_ = new BlockStatement;
+
+    if(uniform(0, 10))
+      r.body_ = new BlockStatement;
+
     return r;
   }
   else
@@ -144,6 +148,7 @@ Declaration randomDeclaration()
     auto r = new ClassDeclaration;
     static classCounter = 0;
     r.name = format("C%s", classCounter++);
+    r.isInterface = uniform(0, 3) == 0;
     return r;
   }
 }

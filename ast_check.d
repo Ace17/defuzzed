@@ -38,8 +38,9 @@ bool checkClass(ClassDeclaration d, Scope sc)
 
 bool checkFunction(FunctionDeclaration d, Scope sc)
 {
-  if(!checkStatement(d.body_, sc))
-    return false;
+  if(d.body_)
+    if(!checkStatement(d.body_, sc))
+      return false;
 
   return true;
 }
