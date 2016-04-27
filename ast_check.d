@@ -44,6 +44,9 @@ bool checkFunction(FunctionDeclaration d, Scope sc)
   auto sym = Scope.Symbol(d.name, Scope.Symbol.FL_FUNCTION, "int");
   sc.addSymbol(sym);
 
+  if(!sc.onlyStaticInitializers && !d.body_)
+    return false; // prevent "nested function missing body"
+
   if(d.body_)
     if(!checkStatement(d.body_, sc))
       return false;
@@ -132,6 +135,7 @@ bool checkExpression(Expression e, Scope sc)
 {
   return visitExpression!(
     checkNumber,
+    checkIdentifier,
     checkFunctionCall,
     checkBinary)
            (e, sc);
@@ -140,6 +144,15 @@ bool checkExpression(Expression e, Scope sc)
 bool checkNumber(NumberExpression e, Scope sc)
 {
   return true;
+}
+
+bool checkIdentifier(IdentifierExpression e, Scope sc)
+{
+  if(sc.onlyStaticInitializers)
+    return false;
+
+  const vars = sc.getVisibleVariables;
+  return canFind(vars, e.name);
 }
 
 bool checkFunctionCall(FunctionCallExpression e, Scope sc)

@@ -164,6 +164,7 @@ void mutateExpression(Expression e)
 {
   visitExpression!(
     mutateNumber,
+    mutateIdentifier,
     mutateFunctionCall,
     mutateBinary)
     (e);
@@ -172,6 +173,11 @@ void mutateExpression(Expression e)
 void mutateNumber(NumberExpression e)
 {
   e.value += uniform(-10, 11);
+}
+
+void mutateIdentifier(IdentifierExpression e)
+{
+  e.name = format("i%s", uniform(0, 100));
 }
 
 void mutateBinary(BinaryExpression e)
@@ -212,7 +218,7 @@ void mutateFunctionCall(FunctionCallExpression e)
 
 Expression randomExpr()
 {
-  switch(uniform(0, 3))
+  switch(uniform(0, 4))
   {
   case 0:
     {
@@ -236,6 +242,13 @@ Expression randomExpr()
       else
         r.name = "f";
 
+      return r;
+    }
+
+  case 3:
+    {
+      auto r = new IdentifierExpression;
+      r.name = format("i%s", uniform(0, 100));
       return r;
     }
   default:

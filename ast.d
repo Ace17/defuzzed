@@ -76,6 +76,11 @@ class NumberExpression : Expression
   int value;
 }
 
+class IdentifierExpression : Expression
+{
+  string name;
+}
+
 class BinaryExpression : Expression
 {
   Expression[2] operands;

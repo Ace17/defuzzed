@@ -159,6 +159,7 @@ void printExpression(Expression e, Printer f)
 {
   visitExpression!(
     printNumber,
+    printIdentifier,
     printFunctionCall,
     printBinary)
     (e, f);
@@ -173,6 +174,11 @@ void printNumber(NumberExpression e, Printer f)
 
   if(e.value < 0)
     f.writef(")");
+}
+
+void printIdentifier(IdentifierExpression e, Printer f)
+{
+  f.writef("%s", e.name);
 }
 
 void printFunctionCall(FunctionCallExpression e, Printer f)

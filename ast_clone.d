@@ -118,6 +118,7 @@ Expression cloneExpression(Expression e)
 {
   return visitExpression!(
     cloneNumber,
+    cloneIdentifier,
     cloneFunctionCall,
     cloneBinary)
            (e);
@@ -127,6 +128,13 @@ Expression cloneNumber(NumberExpression e)
 {
   auto r = new NumberExpression;
   r.value = e.value;
+  return r;
+}
+
+Expression cloneIdentifier(IdentifierExpression e)
+{
+  auto r = new IdentifierExpression;
+  r.name = e.name;
   return r;
 }
 
