@@ -204,6 +204,10 @@ void mutateBinary(BinaryExpression e)
 
 void mutateFunctionCall(FunctionCallExpression e)
 {
+  if(uniform(0, 10))
+    e.name = format("f%s", uniform(0, 10));
+  else
+    e.name = "f";
 }
 
 Expression randomExpr()
