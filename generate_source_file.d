@@ -72,14 +72,7 @@ void breadthFirstGenerate(File f)
 
   auto getValidRandomProgram()
   {
-    Declaration tree;
-
-    {
-      auto func = new FunctionDeclaration;
-      func.name = "f";
-      func.body_ = new BlockStatement;
-      tree = func;
-    }
+    Declaration tree = randomDeclaration();
 
     for(int i = 0; i < 100; ++i)
     {
