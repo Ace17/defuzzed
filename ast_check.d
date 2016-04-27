@@ -29,8 +29,11 @@ bool checkDeclaration(Declaration d, Scope sc = new Scope)
 
 bool checkClass(ClassDeclaration d, Scope sc)
 {
+  auto inner = sc.sub();
+  inner.onlyStaticInitializers = true;
+
   foreach(decl; d.declarations)
-    if(!checkDeclaration(decl, sc))
+    if(!checkDeclaration(decl, inner))
       return false;
 
   return true;
@@ -38,6 +41,9 @@ bool checkClass(ClassDeclaration d, Scope sc)
 
 bool checkFunction(FunctionDeclaration d, Scope sc)
 {
+  auto sym = Scope.Symbol(d.name, Scope.Symbol.FL_FUNCTION, "int");
+  sc.addSymbol(sym);
+
   if(d.body_)
     if(!checkStatement(d.body_, sc))
       return false;
@@ -126,12 +132,30 @@ bool checkExpression(Expression e, Scope sc)
 {
   return visitExpression!(
     checkNumber,
+    checkFunctionCall,
     checkBinary)
            (e, sc);
 }
 
 bool checkNumber(NumberExpression e, Scope sc)
 {
+  return true;
+}
+
+bool checkFunctionCall(FunctionCallExpression e, Scope sc)
+{
+  if(sc.onlyStaticInitializers)
+    return false;
+
+  const funcs = sc.getVisibleFunctions;
+
+  if(!canFind(funcs, e.name))
+    return false;
+
+  foreach(arg; e.args)
+    if(!checkExpression(arg, sc))
+      return false;
+
   return true;
 }
 

@@ -52,7 +52,7 @@ void printClass(ClassDeclaration d, Printer f)
 
 void printFunction(FunctionDeclaration d, Printer f)
 {
-  f.writef("void %s()", d.name);
+  f.writef("int %s()", d.name);
 
   if(d.body_)
   {
@@ -62,6 +62,7 @@ void printFunction(FunctionDeclaration d, Printer f)
     {
       auto id = f.indent();
       printStatement(d.body_, f);
+      f.writeln("return -1;");
     }
 
     f.writeln("}");
@@ -158,6 +159,7 @@ void printExpression(Expression e, Printer f)
 {
   visitExpression!(
     printNumber,
+    printFunctionCall,
     printBinary)
     (e, f);
 }
@@ -171,6 +173,21 @@ void printNumber(NumberExpression e, Printer f)
 
   if(e.value < 0)
     f.writef(")");
+}
+
+void printFunctionCall(FunctionCallExpression e, Printer f)
+{
+  f.writef("%s(", e.name);
+
+  foreach(i, arg; e.args)
+  {
+    if(i > 0)
+      f.writef(", ");
+
+    printExpression(arg, f);
+  }
+
+  f.writef(")");
 }
 
 void printBinary(BinaryExpression e, Printer f)

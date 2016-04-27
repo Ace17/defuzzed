@@ -118,6 +118,7 @@ Expression cloneExpression(Expression e)
 {
   return visitExpression!(
     cloneNumber,
+    cloneFunctionCall,
     cloneBinary)
            (e);
 }
@@ -126,6 +127,17 @@ Expression cloneNumber(NumberExpression e)
 {
   auto r = new NumberExpression;
   r.value = e.value;
+  return r;
+}
+
+Expression cloneFunctionCall(FunctionCallExpression e)
+{
+  auto r = new FunctionCallExpression;
+  r.name = e.name;
+
+  foreach(arg; e.args)
+    r.args ~= cloneExpression(arg);
+
   return r;
 }
 

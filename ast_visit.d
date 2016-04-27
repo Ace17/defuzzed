@@ -61,12 +61,16 @@ auto visitStatement(alias visitDeclaration, alias visitBlock, alias visitWhile, 
     assert(0);
 }
 
-auto visitExpression(alias visitNumber, alias visitBinary, T...)
+auto visitExpression(alias visitNumber, alias visitFunctionCall, alias visitBinary, T...)
   (Expression e, T extraArgs)
 {
   if(auto expr = cast(NumberExpression)e)
   {
     return visitNumber(expr, extraArgs);
+  }
+  else if(auto expr = cast(FunctionCallExpression)e)
+  {
+    return visitFunctionCall(expr, extraArgs);
   }
   else if(auto expr = cast(BinaryExpression)e)
   {

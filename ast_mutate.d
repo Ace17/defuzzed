@@ -74,7 +74,10 @@ void mutateBlock(BlockStatement s)
   foreach(sub; s.sub)
     mutateStatement(sub);
 
-  s.sub ~= randomStatement();
+  const N = uniform(1, 4);
+
+  foreach(i; 0 .. N)
+    s.sub ~= randomStatement();
 }
 
 void mutateWhile(WhileStatement s)
@@ -121,15 +124,17 @@ Statement randomStatement()
   }
 
   static const funcs = [&onIf, &onBlock, &onWhile, &onDecl];
-  return callRandomOne(funcs);
+  static const probs = [20, 10, 20, 50];
+  const idx = dice(probs);
+  return funcs[idx] ();
 }
 
 Declaration randomDeclaration()
 {
-  if(uniform(0, 2))
+  if(uniform(0, 4))
   {
     auto r = new VariableDeclaration;
-    r.name = "i";
+    r.name = format("i%s", uniform(0, 10));
     return r;
   }
   else if(uniform(0, 2))
@@ -159,6 +164,7 @@ void mutateExpression(Expression e)
 {
   visitExpression!(
     mutateNumber,
+    mutateFunctionCall,
     mutateBinary)
     (e);
 }
@@ -196,26 +202,47 @@ void mutateBinary(BinaryExpression e)
   }
 }
 
+void mutateFunctionCall(FunctionCallExpression e)
+{
+}
+
 Expression randomExpr()
 {
-  switch(uniform(0, 2))
+  switch(uniform(0, 3))
   {
   case 0:
     {
-      auto r = new NumberExpression;
-      r.value = uniform(-100, 100);
-      return r;
+      return randomNumberExpression();
     }
 
   case 1:
     {
       auto r = new BinaryExpression;
-      r.operands[0] = new NumberExpression();
-      r.operands[1] = new NumberExpression();
+      r.operands[0] = randomNumberExpression();
+      r.operands[1] = randomNumberExpression();
+      return r;
+    }
+
+  case 2:
+    {
+      auto r = new FunctionCallExpression;
+
+      if(uniform(0, 10))
+        r.name = format("f%s", uniform(0, 10));
+      else
+        r.name = "f";
+
       return r;
     }
   default:
     assert(0);
   }
+}
+
+NumberExpression randomNumberExpression()
+{
+  auto r = new NumberExpression;
+  r.value = uniform(-100, 100);
+  return r;
 }
 

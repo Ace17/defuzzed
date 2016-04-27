@@ -18,6 +18,7 @@ import std.string;
 
 class Scope
 {
+  bool onlyStaticInitializers;
   Scope parent;
 
   struct Symbol

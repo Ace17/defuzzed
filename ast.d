@@ -82,3 +82,9 @@ class BinaryExpression : Expression
   char operator = '+';
 }
 
+class FunctionCallExpression : Expression
+{
+  string name;
+  Expression[] args;
+}
+

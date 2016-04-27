@@ -81,7 +81,7 @@ void breadthFirstGenerate(File f)
       tree = func;
     }
 
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 100; ++i)
     {
       auto mutatedTree = cloneDeclaration(tree);
       mutateDeclaration(mutatedTree);
