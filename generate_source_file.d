@@ -62,34 +62,33 @@ void generateRandomSourceFile(int seed, File f)
     breadthFirstGenerate(f);
 }
 
+import ast;
+import ast_check;
+import ast_clone;
+import ast_mutate;
+import ast_print;
+
 void breadthFirstGenerate(File f)
 {
-  import ast;
-  import ast_check;
-  import ast_clone;
-  import ast_mutate;
-  import ast_print;
-
-  auto getValidRandomProgram()
-  {
-    Declaration tree = randomDeclaration();
-
-    for(int i = 0; i < 100; ++i)
-    {
-      auto mutatedTree = cloneDeclaration(tree);
-      mutateDeclaration(mutatedTree);
-
-      if(checkDeclaration(mutatedTree))
-        tree = mutatedTree;
-    }
-
-    return tree;
-  }
-
   auto tree = getValidRandomProgram();
 
   printDeclaration(tree, f);
-
   f.writeln();
+}
+
+Declaration getValidRandomProgram()
+{
+  auto tree = randomDeclaration();
+
+  for(int i = 0; i < 100; ++i)
+  {
+    auto mutatedTree = cloneDeclaration(tree);
+    mutateDeclaration(mutatedTree);
+
+    if(checkDeclaration(mutatedTree))
+      tree = mutatedTree;
+  }
+
+  return tree;
 }
 

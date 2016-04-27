@@ -124,7 +124,7 @@ Statement randomStatement()
   }
 
   static const funcs = [&onIf, &onBlock, &onWhile, &onDecl];
-  static const probs = [20, 10, 20, 50];
+  static const probs = [23, 4, 20, 53];
   const idx = dice(probs);
   return funcs[idx] ();
 }
