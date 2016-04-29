@@ -21,7 +21,12 @@ class ClassDeclaration : Declaration
 {
   bool isInterface;
   string name;
-  Declaration[] declarations;
+  ListDeclaration declarations;
+}
+
+class ListDeclaration : Declaration
+{
+  Declaration[] decls;
 }
 
 class FunctionDeclaration : Declaration

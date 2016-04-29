@@ -22,10 +22,13 @@ void printDeclaration(Declaration d, File f)
   printDeclaration(d, new Printer(f));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void printDeclaration(Declaration d, Printer f)
 {
   visitDeclaration!(
     printClass,
+    printList,
     printFunction,
     printVariable)
     (d, f);
@@ -42,12 +45,16 @@ void printClass(ClassDeclaration d, Printer f)
 
   {
     auto id = f.indent();
-
-    foreach(decl; d.declarations)
-      printDeclaration(decl, f);
+    printDeclaration(d.declarations, f);
   }
 
   f.writeln("}");
+}
+
+void printList(ListDeclaration d, Printer f)
+{
+  foreach(decl; d.decls)
+    printDeclaration(decl, f);
 }
 
 void printFunction(FunctionDeclaration d, Printer f)

@@ -15,7 +15,7 @@
 
 import ast;
 
-auto visitDeclaration(alias visitClass, alias visitFunction, alias visitVariable, T...)
+auto visitDeclaration(alias visitClass, alias visitList, alias visitFunction, alias visitVariable, T...)
   (Declaration d, T extraArgs)
 {
   assert(d);
@@ -23,6 +23,10 @@ auto visitDeclaration(alias visitClass, alias visitFunction, alias visitVariable
   if(auto decl = cast(ClassDeclaration)d)
   {
     return visitClass(decl, extraArgs);
+  }
+  else if(auto decl = cast(ListDeclaration)d)
+  {
+    return visitList(decl, extraArgs);
   }
   else if(auto decl = cast(FunctionDeclaration)d)
   {

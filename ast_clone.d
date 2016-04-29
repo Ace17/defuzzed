@@ -22,6 +22,7 @@ Declaration cloneDeclaration(Declaration d)
 {
   return visitDeclaration!(
     cloneClass,
+    cloneList,
     cloneFunction,
     cloneVariable)
            (d);
@@ -31,9 +32,17 @@ Declaration cloneClass(ClassDeclaration d)
 {
   auto r = new ClassDeclaration;
   r.name = d.name;
+  r.declarations = cloneList(d.declarations);
 
-  foreach(decl; d.declarations)
-    r.declarations ~= cloneDeclaration(decl);
+  return r;
+}
+
+ListDeclaration cloneList(ListDeclaration d)
+{
+  auto r = new ListDeclaration;
+
+  foreach(decl; d.decls)
+    r.decls ~= cloneDeclaration(decl);
 
   return r;
 }

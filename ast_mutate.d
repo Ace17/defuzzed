@@ -25,6 +25,7 @@ void mutateDeclaration(Declaration d)
 {
   visitDeclaration!(
     mutateClass,
+    mutateList,
     mutateFunction,
     mutateVariable)
     (d);
@@ -32,10 +33,15 @@ void mutateDeclaration(Declaration d)
 
 void mutateClass(ClassDeclaration d)
 {
-  if(d.declarations.length > 0 && uniform(0, 2))
-    mutateDeclaration(d.declarations[uniform(0, $)]);
+  mutateDeclaration(d.declarations);
+}
+
+void mutateList(ListDeclaration d)
+{
+  if(d.decls.length > 0 && uniform(0, 2))
+    mutateDeclaration(d.decls[uniform(0, $)]);
   else
-    d.declarations ~= randomDeclaration();
+    d.decls ~= randomDeclaration();
 }
 
 void mutateFunction(FunctionDeclaration d)
@@ -154,6 +160,7 @@ Declaration randomDeclaration()
     static classCounter = 0;
     r.name = format("C%s", classCounter++);
     r.isInterface = uniform(0, 3) == 0;
+    r.declarations = new ListDeclaration;
     return r;
   }
 }

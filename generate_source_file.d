@@ -78,14 +78,17 @@ void breadthFirstGenerate(File f)
 
 Declaration getValidRandomProgram()
 {
-  auto tree = randomDeclaration();
+  Declaration tree = new ListDeclaration;
 
   for(int i = 0; i < 100; ++i)
   {
     auto mutatedTree = cloneDeclaration(tree);
     mutateDeclaration(mutatedTree);
 
-    if(checkDeclaration(mutatedTree))
+    auto sc = new Scope;
+    sc.onlyStaticInitializers = true;
+
+    if(checkDeclaration(mutatedTree, sc))
       tree = mutatedTree;
   }
 

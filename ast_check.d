@@ -22,6 +22,7 @@ bool checkDeclaration(Declaration d, Scope sc = new Scope)
 {
   return visitDeclaration!(
     checkClass,
+    checkList,
     checkFunction,
     checkVariable)
            (d, sc);
@@ -32,8 +33,16 @@ bool checkClass(ClassDeclaration d, Scope sc)
   auto inner = sc.sub();
   inner.onlyStaticInitializers = true;
 
-  foreach(decl; d.declarations)
-    if(!checkDeclaration(decl, inner))
+  if(!checkList(d.declarations, inner))
+    return false;
+
+  return true;
+}
+
+bool checkList(ListDeclaration d, Scope sc)
+{
+  foreach(decl; d.decls)
+    if(!checkDeclaration(decl, sc))
       return false;
 
   return true;
