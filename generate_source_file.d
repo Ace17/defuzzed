@@ -70,17 +70,27 @@ import ast_print;
 
 void breadthFirstGenerate(File f)
 {
-  auto tree = getValidRandomProgram();
+  auto r = getValidRandomProgram();
 
-  printDeclaration(tree, f);
+  f.writefln("// mutation ratio: %.2f", r.mutationRatio);
+  printDeclaration(r.tree, f);
   f.writeln();
 }
 
-Declaration getValidRandomProgram()
+auto getValidRandomProgram()
 {
+  static struct Result
+  {
+    Declaration tree;
+    float mutationRatio;
+  }
+
   Declaration tree = new ListDeclaration;
 
-  for(int i = 0; i < 100; ++i)
+  int numMutations;
+  const MAX_MUTATIONS = 100;
+
+  for(int i = 0; i < MAX_MUTATIONS; ++i)
   {
     auto mutatedTree = cloneDeclaration(tree);
     mutateDeclaration(mutatedTree);
@@ -89,9 +99,12 @@ Declaration getValidRandomProgram()
     sc.onlyStaticInitializers = true;
 
     if(checkDeclaration(mutatedTree, sc))
+    {
       tree = mutatedTree;
+      numMutations++;
+    }
   }
 
-  return tree;
+  return Result(tree, cast(float)numMutations/MAX_MUTATIONS);
 }
 
