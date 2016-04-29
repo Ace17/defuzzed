@@ -40,7 +40,7 @@ auto visitDeclaration(alias visitClass, alias visitList, alias visitFunction, al
     assert(0);
 }
 
-auto visitStatement(alias visitDeclaration, alias visitBlock, alias visitWhile, alias visitIf, T...)
+auto visitStatement(alias visitDeclaration, alias visitExpression, alias visitBlock, alias visitWhile, alias visitIf, T...)
   (Statement s, T extraArgs)
 {
   assert(s);
@@ -48,6 +48,10 @@ auto visitStatement(alias visitDeclaration, alias visitBlock, alias visitWhile, 
   if(auto stmt = cast(DeclarationStatement)s)
   {
     return visitDeclaration(stmt, extraArgs);
+  }
+  else if(auto stmt = cast(ExpressionStatement)s)
+  {
+    return visitExpression(stmt, extraArgs);
   }
   else if(auto stmt = cast(BlockStatement)s)
   {

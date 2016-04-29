@@ -75,6 +75,7 @@ Statement cloneStatement(Statement s)
 {
   return visitStatement!(
     cloneDeclarationS,
+    cloneExpressionS,
     cloneBlock,
     cloneWhile,
     cloneIf)
@@ -85,6 +86,13 @@ Statement cloneDeclarationS(DeclarationStatement s)
 {
   auto r = new DeclarationStatement;
   r.declaration = cloneDeclaration(s.declaration);
+  return r;
+}
+
+Statement cloneExpressionS(ExpressionStatement s)
+{
+  auto r = new ExpressionStatement;
+  r.expr = cloneExpression(s.expr);
   return r;
 }
 

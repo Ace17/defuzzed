@@ -52,6 +52,11 @@ class DeclarationStatement : Statement
   Declaration declaration;
 }
 
+class ExpressionStatement : Statement
+{
+  Expression expr;
+}
+
 class BlockStatement : Statement
 {
   Statement[] sub;

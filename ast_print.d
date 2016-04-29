@@ -99,6 +99,7 @@ void printStatement(Statement s, Printer f)
 {
   visitStatement!(
     printDeclarationS,
+    printExpressionS,
     printBlock,
     printWhile,
     printIf)
@@ -108,6 +109,12 @@ void printStatement(Statement s, Printer f)
 void printDeclarationS(DeclarationStatement s, Printer f)
 {
   printDeclaration(s.declaration, f);
+}
+
+void printExpressionS(ExpressionStatement s, Printer f)
+{
+  printExpression(s.expr, f);
+  f.writeln(";");
 }
 
 void printBlock(BlockStatement s, Printer f)

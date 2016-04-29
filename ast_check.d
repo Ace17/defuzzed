@@ -88,6 +88,7 @@ bool checkStatement(Statement s, Scope sc)
 {
   return visitStatement!(
     checkDeclarationS,
+    checkExpressionS,
     checkBlock,
     checkWhile,
     checkIf)
@@ -97,6 +98,14 @@ bool checkStatement(Statement s, Scope sc)
 bool checkDeclarationS(DeclarationStatement s, Scope sc)
 {
   return checkDeclaration(s.declaration, sc);
+}
+
+bool checkExpressionS(ExpressionStatement s, Scope sc)
+{
+  if(hasNoSideEffects(s.expr))
+    return false;
+
+  return checkExpression(s.expr, sc);
 }
 
 bool checkBlock(BlockStatement s, Scope sc)
@@ -184,5 +193,37 @@ bool checkFunctionCall(FunctionCallExpression e, Scope sc)
 bool checkBinary(BinaryExpression e, Scope sc)
 {
   return checkExpression(e.operands[0], sc) && checkExpression(e.operands[1], sc);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool hasNoSideEffects(Expression e)
+{
+  static bool onNumber(NumberExpression)
+  {
+    return true;
+  }
+
+  static bool onIdentifier(IdentifierExpression)
+  {
+    return true;
+  }
+
+  static bool onFunctionCall(FunctionCallExpression)
+  {
+    return false;
+  }
+
+  static bool onBinary(BinaryExpression)
+  {
+    return true;
+  }
+
+  return visitExpression!(
+    onNumber,
+    onIdentifier,
+    onFunctionCall,
+    onBinary)
+           (e);
 }
 

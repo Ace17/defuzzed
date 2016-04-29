@@ -64,6 +64,7 @@ void mutateStatement(Statement s)
 {
   visitStatement!(
     mutateDeclarationS,
+    mutateExpressionS,
     mutateBlock,
     mutateWhile,
     mutateIf)
@@ -73,6 +74,11 @@ void mutateStatement(Statement s)
 void mutateDeclarationS(DeclarationStatement s)
 {
   mutateDeclaration(s.declaration);
+}
+
+void mutateExpressionS(ExpressionStatement s)
+{
+  mutateExpression(s.expr);
 }
 
 void mutateBlock(BlockStatement s)
@@ -101,6 +107,13 @@ void mutateIf(IfStatement s)
 
 Statement randomStatement()
 {
+  static Statement onExpression()
+  {
+    auto s = new ExpressionStatement;
+    s.expr = randomExpr();
+    return s;
+  }
+
   static Statement onIf()
   {
     auto s = new IfStatement;
@@ -129,8 +142,8 @@ Statement randomStatement()
     return s;
   }
 
-  static const funcs = [&onIf, &onBlock, &onWhile, &onDecl];
-  static const probs = [23, 4, 20, 53];
+  static const funcs = [&onExpression, &onIf, &onBlock, &onWhile, &onDecl];
+  static const probs = [22, 13, 4, 20, 53];
   const idx = dice(probs);
   return funcs[idx] ();
 }
