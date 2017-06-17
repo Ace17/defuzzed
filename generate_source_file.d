@@ -22,6 +22,7 @@ import std.stdio;
 import entropy;
 import scope_;
 import dfs_generator;
+import grammar;
 
 int main(string[] args)
 {
@@ -60,6 +61,7 @@ void generateRandomSourceFile(int seed, File f)
     [
     &depthFirstGenerate,
     &breadthFirstGenerate,
+    &fuzzyGenerate,
     ];
 
   generators[uniform(0, $)](f);

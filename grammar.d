@@ -7,6 +7,8 @@ enum Node
 {
   Number,
   Identifier,
+  ClassIdentifier,
+  FunctionIdentifier,
   Plus,
   Minus,
   Equals,
@@ -16,6 +18,7 @@ enum Node
   RightBrace,
   Semicolon,
   Return,
+  Void,
   Int,
   Char,
   Float,
@@ -24,7 +27,10 @@ enum Node
   Class,
 
   Axiom,
+  Condition,
   Expr,
+  ExprWithSideEffects,
+  LValue,
   Type,
   TopLevelDeclaration,
   TopLevelDeclarationList,
@@ -55,34 +61,41 @@ Rule[] getGrammar()
       Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
 
       Rule(TopLevelDeclaration, [FunctionDeclaration]),
-      Rule(TopLevelDeclaration, [VariableDeclaration]),
+//    Rule(TopLevelDeclaration, [VariableDeclaration]),
       Rule(TopLevelDeclaration, [ClassDeclaration]),
 
-      Rule(FunctionDeclaration, [Type, Identifier, LeftPar, RightPar, LeftBrace, StatementList, RightBrace]),
+      Rule(FunctionDeclaration, [Void, FunctionIdentifier, LeftPar, RightPar, LeftBrace, StatementList, RightBrace]),
 
       Rule(VariableDeclaration, [Type, Identifier, Equals, Expr, Semicolon]),
 
-      Rule(ClassDeclaration, [Class, Identifier, LeftBrace, TopLevelDeclarationList, RightBrace]),
+      Rule(ClassDeclaration, [Class, ClassIdentifier, LeftBrace, TopLevelDeclarationList, RightBrace]),
 
       Rule(StatementList, [Statement]),
       Rule(StatementList, [StatementList, Statement]),
+      Rule(StatementList, [StatementList, TopLevelDeclarationList]),
 
-      Rule(Statement, [Expr, Semicolon]),
-      Rule(Statement, [Return, Expr, Semicolon]),
-      Rule(Statement, [VariableDeclaration]),
-      Rule(Statement, [If, LeftPar, Expr, RightPar, LeftBrace, StatementList, RightBrace ]),
-      Rule(Statement, [For, LeftPar, Expr, Semicolon, Expr, Semicolon, Expr, RightPar, LeftBrace, StatementList, RightBrace ]),
+      Rule(Statement, [ExprWithSideEffects, Semicolon]),
+//    Rule(Statement, [Return, Expr, Semicolon]),
+//    Rule(Statement, [VariableDeclaration]),
+      Rule(Statement, [If, LeftPar, Condition, RightPar, LeftBrace, StatementList, RightBrace ]),
+      Rule(Statement, [For, LeftPar, ExprWithSideEffects, Semicolon, Condition, Semicolon, ExprWithSideEffects, RightPar, LeftBrace, StatementList, RightBrace ]),
+
+      Rule(Condition, [Number]),
 
       Rule(Type, [Int]),
-      Rule(Type, [Char]),
-      Rule(Type, [Float]),
+//    Rule(Type, [Char]),
+//    Rule(Type, [Float]),
 
       Rule(Expr, [Number]),
       Rule(Expr, [Identifier]),
       Rule(Expr, [LeftPar, Expr, RightPar]),
       Rule(Expr, [Expr, Plus, Expr]),
       Rule(Expr, [Expr, Minus, Expr]),
-      Rule(Expr, [Expr, Equals, Expr]),
+      Rule(Expr, [ExprWithSideEffects]),
+
+      Rule(LValue, [Identifier]),
+
+      Rule(ExprWithSideEffects, [LeftPar, LValue, Equals, Expr, RightPar]),
     ];
   }
 }
@@ -104,8 +117,11 @@ string randomTree(Node from, int depth=0)
   {
   case Node.Number: return format("%s", uniform(0,100));
   case Node.Identifier: return format("i%s ", uniform(0, 100));
+  case Node.FunctionIdentifier: return format("f%s ", uniform(0, 100));
+  case Node.ClassIdentifier: return format("c%s ", uniform(0, 100));
   case Node.Class: return "class ";
   case Node.Int: return "int ";
+  case Node.Void: return "void ";
   case Node.Char: return "char ";
   case Node.Float: return "float ";
   case Node.If: return "if";
@@ -139,23 +155,32 @@ string randomTree(Node from, int depth=0)
   return result;
 }
 
+// favor first elements of the list as depth increases
 float[] getProportions(int length, int depth)
 {
   float[] r;
   foreach(int i; 0 .. length)
   {
     const x = length - 1 - i;
-    r ~= 1 + x*depth*0.1;
+    r ~= 1 + x*depth*0.2;
   }
   return r;
 }
 
 import std.stdio;
 
-int main()
+void fuzzyGenerate(File f)
 {
+  f.writef("int ");
+  for(int i=0;i < 100;++i)
+  {
+    if(i > 0)
+      f.write(", ");
+    f.writef("i%s", i);
+  }
+  f.writeln(";");
+
   const tree = randomTree(Node.Axiom);
-  writefln("%s", tree);
-  return 0;
+  f.writeln(tree);
 }
 
