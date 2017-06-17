@@ -1,7 +1,7 @@
 import std.algorithm;
 import std.array;
 import std.string;
-import std.random;
+import entropy;
 
 enum Node
 {
