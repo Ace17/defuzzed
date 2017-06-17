@@ -13,10 +13,13 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+module generators.mutate.ast_clone;
+
 import std.algorithm;
-import ast;
-import ast_visit;
 import scope_;
+
+import generators.mutate.ast;
+import generators.mutate.ast_visit;
 
 Declaration cloneDeclaration(Declaration d)
 {

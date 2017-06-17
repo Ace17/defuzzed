@@ -13,7 +13,9 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
-import ast;
+module generators.mutate.ast_visit;
+
+import generators.mutate.ast;
 
 auto visitDeclaration(alias visitClass, alias visitList, alias visitFunction, alias visitVariable, T...)
   (Declaration d, T extraArgs)

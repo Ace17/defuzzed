@@ -1,3 +1,5 @@
+module generators.grammar.main;
+
 import std.algorithm;
 import std.array;
 import std.string;

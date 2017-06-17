@@ -13,9 +13,11 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+module generators.mutate.ast_print;
+
 import std.stdio: File;
-import ast;
-import ast_visit;
+import generators.mutate.ast;
+import generators.mutate.ast_visit;
 
 void printDeclaration(Declaration d, File f)
 {

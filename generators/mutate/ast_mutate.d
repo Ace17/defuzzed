@@ -13,11 +13,15 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+module generators.mutate.ast_mutate;
+
 import std.stdio;
 import std.string;
+
 import entropy;
-import ast;
-import ast_visit;
+
+import generators.mutate.ast;
+import generators.mutate.ast_visit;
 
 ///////////////////////////////////////////////////////////////////////////////
 

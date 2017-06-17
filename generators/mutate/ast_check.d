@@ -13,10 +13,14 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+module generators.mutate.ast_check;
+
 import std.algorithm;
-import ast;
-import ast_visit;
+
 import scope_;
+
+import generators.mutate.ast;
+import generators.mutate.ast_visit;
 
 bool checkDeclaration(Declaration d, Scope sc = new Scope)
 {

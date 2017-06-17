@@ -13,6 +13,8 @@
  * License, or (at your option) any later version.
  */
 
+module generators.dfs.main;
+
 import std.stdio;
 import std.algorithm;
 import entropy;

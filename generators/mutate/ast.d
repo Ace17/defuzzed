@@ -13,6 +13,8 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+module generators.mutate.ast;
+
 class Declaration
 {
 }
