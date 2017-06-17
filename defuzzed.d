@@ -16,6 +16,7 @@
  * This file is part of defuzzed, a fuzzer for D compilers;
  */
 
+import std.algorithm;
 import std.array;
 import std.conv;
 import std.file;
@@ -87,15 +88,15 @@ void safeProcessSeed(int seed, string[] baseCmd)
       throw new Exception("can't generate source file");
   }
 
+  string expandVariables(string s)
   {
-    string[] cmd;
+    s = replace(s, "%s", sourcePath);
+    s = replace(s, "%o", objectPath);
+    return s;
+  }
 
-    foreach(word; baseCmd)
-    {
-      word = replace(word, "%s", sourcePath);
-      word = replace(word, "%o", objectPath);
-      cmd ~= word;
-    }
+  {
+    const cmd = array(map!expandVariables(baseCmd));
 
     writefln("%s", cmd);
     const status = execute(cmd);
