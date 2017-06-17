@@ -14,15 +14,21 @@ enum Node
   RightBrace,
   Semicolon,
   Return,
-  Type,
+  Int,
+  Char,
+  Float,
   If,
   For,
+  Class,
 
   Axiom,
   Expr,
-  Function,
+  Type,
   TopLevelDeclaration,
   TopLevelDeclarationList,
+  FunctionDeclaration,
+  VariableDeclaration,
+  ClassDeclaration,
   Statement,
   StatementList,
 }
@@ -46,18 +52,28 @@ Rule[] getGrammar()
       Rule(TopLevelDeclarationList, [TopLevelDeclaration]),
       Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
 
-      Rule(TopLevelDeclaration, [Function]),
+      Rule(TopLevelDeclaration, [FunctionDeclaration]),
+      Rule(TopLevelDeclaration, [VariableDeclaration]),
+      Rule(TopLevelDeclaration, [ClassDeclaration]),
 
-      Rule(Function, [Type, Identifier, LeftPar, RightPar, LeftBrace, StatementList, RightBrace]),
+      Rule(FunctionDeclaration, [Type, Identifier, LeftPar, RightPar, LeftBrace, StatementList, RightBrace]),
+
+      Rule(VariableDeclaration, [Type, Identifier, Equals, Expr, Semicolon]),
+
+      Rule(ClassDeclaration, [Class, Identifier, LeftBrace, TopLevelDeclarationList, RightBrace]),
 
       Rule(StatementList, [Statement]),
       Rule(StatementList, [StatementList, Statement]),
 
       Rule(Statement, [Expr, Semicolon]),
       Rule(Statement, [Return, Expr, Semicolon]),
-      Rule(Statement, [Type, Identifier, Equals, Expr, Semicolon]),
+      Rule(Statement, [VariableDeclaration]),
       Rule(Statement, [If, LeftPar, Expr, RightPar, LeftBrace, StatementList, RightBrace ]),
       Rule(Statement, [For, LeftPar, Expr, Semicolon, Expr, Semicolon, Expr, RightPar, LeftBrace, StatementList, RightBrace ]),
+
+      Rule(Type, [Int]),
+      Rule(Type, [Char]),
+      Rule(Type, [Float]),
 
       Rule(Expr, [Number]),
       Rule(Expr, [Identifier]),
@@ -85,7 +101,10 @@ string randomTree(Node from, int depth=0)
   {
   case Node.Number: return format("%s", uniform(0,100));
   case Node.Identifier: return format("i%s ", uniform(0, 100));
-  case Node.Type: return "int ";
+  case Node.Class: return "class ";
+  case Node.Int: return "int ";
+  case Node.Char: return "char ";
+  case Node.Float: return "float ";
   case Node.If: return "if";
   case Node.For: return "for";
   case Node.Plus: return "+";
