@@ -1,3 +1,5 @@
+import std.algorithm;
+import std.array;
 import std.string;
 import std.random;
 
@@ -87,11 +89,12 @@ Rule[] getGrammar()
 
 Rule[] getMatchingRules(Node type)
 {
-  Rule[] r;
-  foreach(rule; grammar)
-    if(rule.left == type)
-      r ~= rule;
-  return r;
+  bool matches(in Rule r)
+  {
+    return r.left == type;
+  }
+
+  return array(filter!matches(grammar));
 }
 
 string randomTree(Node from, int depth=0)
@@ -127,7 +130,9 @@ string randomTree(Node from, int depth=0)
 
   const choice = dice(proportions);
   const rule = rules[choice];
+
   string result;
+
   foreach(child; rule.right)
     result ~= randomTree(child, depth+1);
 
