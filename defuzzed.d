@@ -72,11 +72,13 @@ void processSeed(int seed, string[] cmd)
 
 void safeProcessSeed(int seed, string[] baseCmd)
 {
-  const sourcePath = buildPath(tempDir(), format("test_%03d.d", seed));
-  scope(success) remove(sourcePath);
+  const tmpDir = buildPath(tempDir(), format("defuzzed-seed-%s", seed));
 
-  const objectPath = buildPath(tempDir(), format("test_%03d.o", seed));
-  scope(success) remove(objectPath);
+  mkdirRecurse(tmpDir);
+  scope(success) rmdirRecurse(tmpDir);
+
+  const sourcePath = buildPath(tmpDir, "test.d");
+  const objectPath = buildPath(tmpDir, "test.o");
 
   {
     const status = execute(["rdmd", "generate_source_file.d", to!string(seed), sourcePath]);
