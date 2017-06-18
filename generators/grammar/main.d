@@ -37,10 +37,16 @@ void fuzzyGenerate(File f)
   {
     auto grammar =
       [
-      Rule(Axiom, [Prelude, TopLevelDeclarationList]),
+      Rule(Axiom, [Prelude, StaticDeclarationBlock]),
 
       // force at least one global variable
       Rule(Prelude, [VariableDeclaration]),
+
+      Rule(StaticDeclarationBlock,
+          [TopLevelDeclarationList],
+          &onBeginBlock,
+          &onEndBlock
+          ),
 
       Rule(TopLevelDeclarationList, [TopLevelDeclaration]),
       Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
@@ -53,10 +59,7 @@ void fuzzyGenerate(File f)
 
       Rule(VariableDeclaration, [Type, NewIdentifier, Equals, Number, Semicolon]),
 
-      Rule(ClassDeclaration,
-          [Class, ClassIdentifier, LeftBrace, TopLevelDeclarationList, RightBrace],
-          &onBeginBlock,
-          &onEndBlock),
+      Rule(ClassDeclaration, [Class, NewClassIdentifier, LeftBrace, StaticDeclarationBlock, RightBrace]),
 
       Rule(StatementList, [Statement]),
       Rule(StatementList, [StatementList, Statement]),
@@ -105,7 +108,8 @@ string reduceTerminal(int from, Object opaqueContext)
   case Node.Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
   case Node.NewIdentifier: return context.sc.addVariable();
   case Node.FunctionIdentifier: return format("f%s ", uniform(0, 100));
-  case Node.ClassIdentifier: return format("c%s ", uniform(0, 100));
+  case Node.NewClassIdentifier: return context.sc.addClass();
+  case Node.ClassIdentifier: return context.sc.getVisibleClasses()[uniform(0, $)];
   case Node.Class: return "\nclass ";
   case Node.Int: return "int ";
   case Node.Void: return "void ";
@@ -132,6 +136,7 @@ enum Node
   Identifier, // a ref to an existing identifier
   NewIdentifier, // a new identifier
   ClassIdentifier,
+  NewClassIdentifier,
   FunctionIdentifier,
   Plus,
   Minus,
@@ -157,6 +162,7 @@ enum Node
   ExprWithSideEffects,
   LValue,
   Type,
+  StaticDeclarationBlock,
   TopLevelDeclaration,
   TopLevelDeclarationList,
   FunctionDeclaration,
