@@ -75,6 +75,9 @@ void fuzzyGenerate(File f)
           &onEndBlock),
 
       Rule(Condition, [Number]),
+      Rule(Condition, [Identifier]),
+      Rule(Condition, [Expr, Plus, Expr]),
+      Rule(Condition, [Expr, Minus, Expr]),
 
       Rule(Type, [Int]),
       //    Rule(Type, [Char]),
