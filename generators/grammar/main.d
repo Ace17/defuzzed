@@ -1,7 +1,7 @@
 module generators.grammar.main;
 
-import std.algorithm;
-import std.array;
+import generators.grammar.generator;
+
 import std.string;
 
 import entropy;
@@ -89,8 +89,40 @@ void fuzzyGenerate(File f)
       Rule(ExprWithSideEffects, [LeftPar, LValue, Equals, Expr, RightPar]),
       ];
 
-    const tree = randomTree(grammar, new Context, Node.Axiom);
+    const tree = randomTree(grammar, new Context, Node.Axiom, &reduceTerminal);
     f.writeln(tree);
+  }
+}
+
+string reduceTerminal(int from, Object opaqueContext)
+{
+  auto context = cast(Context)opaqueContext;
+
+  // terminals first
+  switch(from)
+  {
+  case Node.Number: return format("%s", uniform(0,100));
+  case Node.Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
+  case Node.NewIdentifier: return context.sc.addVariable();
+  case Node.FunctionIdentifier: return format("f%s ", uniform(0, 100));
+  case Node.ClassIdentifier: return format("c%s ", uniform(0, 100));
+  case Node.Class: return "\nclass ";
+  case Node.Int: return "int ";
+  case Node.Void: return "void ";
+  case Node.Char: return "char ";
+  case Node.Float: return "float ";
+  case Node.If: return "if";
+  case Node.For: return "for";
+  case Node.Plus: return "+";
+  case Node.Minus: return "-";
+  case Node.Equals: return "=";
+  case Node.LeftPar: return "(";
+  case Node.RightPar: return ")";
+  case Node.LeftBrace: return "\n{\n";
+  case Node.RightBrace: return "\n}\n";
+  case Node.Semicolon: return ";";
+  case Node.Return: return "return ";
+  default: assert(0, "The above switch is missing one terminal");
   }
 }
 
@@ -118,7 +150,7 @@ enum Node
   For,
   Class,
 
-  Axiom,
+  Axiom = 100,
   Prelude, // HACK
   Condition,
   Expr,
@@ -133,94 +165,5 @@ enum Node
   BlockStatement,
   Statement,
   StatementList,
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// generic part
-
-struct Rule
-{
-  Node left;
-  Node[] right;
-  void function(Object context) pre;
-  void function(Object context) post;
-};
-
-Rule[] getMatchingRules(Rule[] grammar, Node type)
-{
-  bool matches(in Rule r)
-  {
-    return r.left == type;
-  }
-
-  return array(filter!matches(grammar));
-}
-
-string randomTree(Rule[] grammar, Object opaqueContext, Node from, int depth=0)
-{
-  {
-    auto context = cast(Context)opaqueContext;
-
-    // terminals first
-    switch(from)
-    {
-    case Node.Number: return format("%s", uniform(0,100));
-    case Node.Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
-    case Node.NewIdentifier: return context.sc.addVariable();
-    case Node.FunctionIdentifier: return format("f%s ", uniform(0, 100));
-    case Node.ClassIdentifier: return format("c%s ", uniform(0, 100));
-    case Node.Class: return "\nclass ";
-    case Node.Int: return "int ";
-    case Node.Void: return "void ";
-    case Node.Char: return "char ";
-    case Node.Float: return "float ";
-    case Node.If: return "if";
-    case Node.For: return "for";
-    case Node.Plus: return "+";
-    case Node.Minus: return "-";
-    case Node.Equals: return "=";
-    case Node.LeftPar: return "(";
-    case Node.RightPar: return ")";
-    case Node.LeftBrace: return "\n{\n";
-    case Node.RightBrace: return "\n}\n";
-    case Node.Semicolon: return ";";
-    case Node.Return: return "return ";
-    default: break;
-    }
-  }
-
-  assert(from >= Node.Axiom, "The above switch is missing one terminal");
-
-  const rules = getMatchingRules(grammar, from);
-
-  const proportions = getProportions(cast(int)rules.length, depth);
-
-  const choice = dice(proportions);
-  const rule = rules[choice];
-
-  if(rule.pre)
-    rule.pre(opaqueContext);
-
-  string result;
-
-  foreach(child; rule.right)
-    result ~= randomTree(grammar, opaqueContext, child, depth+1);
-
-  if(rule.post)
-    rule.post(opaqueContext);
-
-  return result;
-}
-
-// favor first elements of the list as depth increases
-float[] getProportions(int length, int depth)
-{
-  float[] r;
-  foreach(int i; 0 .. length)
-  {
-    const x = length - 1 - i;
-    r ~= 1 + x*depth*0.2;
-  }
-  return r;
 }
 
