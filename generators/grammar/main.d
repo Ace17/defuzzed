@@ -48,7 +48,7 @@ void fuzzyGenerate(File f)
           &onEndBlock
           ),
 
-      Rule(TopLevelDeclarationList, [TopLevelDeclaration]),
+      Rule(TopLevelDeclarationList, []),
       Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
 
       Rule(TopLevelDeclaration, [FunctionDeclaration]),
@@ -61,7 +61,7 @@ void fuzzyGenerate(File f)
 
       Rule(ClassDeclaration, [Class, NewClassIdentifier, LeftBrace, StaticDeclarationBlock, RightBrace]),
 
-      Rule(StatementList, [Statement]),
+      Rule(StatementList, []),
       Rule(StatementList, [StatementList, Statement]),
 
       Rule(Statement, [ExprWithSideEffects, Semicolon]),

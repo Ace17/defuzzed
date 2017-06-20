@@ -45,7 +45,7 @@ float[] getProportions(int length, int depth)
   foreach(int i; 0 .. length)
   {
     const x = length - 1 - i;
-    r ~= 1 + x*depth*0.2;
+    r ~= 1 + i + x*depth*0.2;
   }
   return r;
 }
