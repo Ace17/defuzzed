@@ -65,7 +65,12 @@ R callRandomOne(R, T...)(in R function(T)[] funcs, T args)
 {
   auto f = funcs[uniform(0, cast(int)$)];
   return f(args);
-}
+} 
 
+R callRandomOne(R, T...)(in R delegate(T)[] funcs, T args)
+{
+  auto f = funcs[uniform(0, cast(int)$)];
+  return f(args);
+} 
 Random gen;
 
