@@ -17,215 +17,242 @@ module generators.dfs.main;
 
 import std.stdio;
 import std.algorithm;
+import std.format;
 import entropy;
 import scope_;
 
 void depthFirstGenerate(File f)
 {
-  auto gen = new Generator;
-  gen.generate(f);
+  auto tree = generate();
+  f.write(tree.lexem);
 }
 
 private:
 
-class Generator
+struct Node
 {
-  void generate(File output)
+  string lexem;
+}
+
+Node generate()
+{
+  auto sc = new Scope;
+  return generateDeclarations(sc);
+}
+
+Node generateDeclarations(Scope sc)
+{
+  const numDecls = randomCount(sc.depth);
+
+  Node r;
+
+  for(int i = 0; i < numDecls; ++i)
+    r.lexem ~= generateDeclaration(sc).lexem;
+
+  return r;
+}
+
+Node generateDeclaration(Scope sc)
+{
+  return callRandomOne(
+      [
+      &generateClass,
+      &generateUnion,
+      &generateStruct,
+      &generateFunction,
+      &generateInterface,
+      ], sc);
+}
+
+Node generateClass(Scope sc)
+{
+  string inheritFrom;
+
+  if(false)
   {
-    f = output;
-
-    auto sc = new Scope;
-    generateDeclarations(sc);
-  }
-
-  File f;
-
-  void generateDeclarations(Scope sc)
-  {
-    const numDecls = randomCount(sc.depth);
-
-    for(int i = 0; i < numDecls; ++i)
-      generateDeclaration(sc);
-  }
-
-  void generateDeclaration(Scope sc)
-  {
-    callRandomOne(
-        [
-        &generateClass,
-        &generateUnion,
-        &generateStruct,
-        &generateFunction,
-        &generateInterface,
-        ], sc);
-  }
-
-  void generateClass(Scope sc)
-  {
-    string inheritFrom;
-
-    if(false)
+    if(uniform(0, 2))
     {
-      if(uniform(0, 2))
-      {
-        auto classes = sc.getVisibleClasses();
+      auto classes = sc.getVisibleClasses();
 
-        if(classes.length > 0)
-          inheritFrom = classes[uniform(0, $)];
-      }
+      if(classes.length > 0)
+        inheritFrom = classes[uniform(0, $)];
     }
-
-    f.writef("class %s", sc.addClass());
-
-    if(inheritFrom)
-      f.writef(" : %s", inheritFrom);
-
-    f.writeln();
-
-    f.writefln("{");
-    generateDeclarations(sc.sub());
-    f.writefln("}");
   }
 
-  void generateUnion(Scope sc)
+  Node r;
+
+  r.lexem ~= format("class %s", sc.addClass());
+
+  if(inheritFrom)
+    r.lexem ~= format(" : %s", inheritFrom);
+
+  r.lexem ~= "\n";
+
+  r.lexem ~= format("{");
+  r.lexem ~= generateDeclarations(sc.sub()).lexem;
+  r.lexem ~= format("}");
+
+  return r;
+}
+
+Node generateUnion(Scope sc)
+{
+  Node r;
+  r.lexem ~= format("union U%s\n", sc.allocName());
+  r.lexem ~= format("{\n");
+  // generateDeclarations(sc.sub());
+  r.lexem ~= format("}\n");
+  return r;
+}
+
+Node generateStruct(Scope sc)
+{
+  Node r;
+  r.lexem ~= format("struct S%s\n", sc.allocName());
+  r.lexem ~= format("{\n");
+  // generateDeclarations(sc.sub());
+  r.lexem ~= format("}\n");
+  return r;
+}
+
+Node generateInterface(Scope sc)
+{
+  Node r;
+  r.lexem ~= format("interface %s\n", sc.addClass());
+
+  r.lexem ~= format("{\n");
+  r.lexem ~= format("}\n");
+  return r;
+}
+
+Node generateFunction(Scope sc)
+{
+  const name = sc.addFunction();
+
+  Node r;
+  r.lexem ~= format("void %s()\n", name);
+
+  auto sub = sc.sub();
+
+  r.lexem ~= format("{\n");
+  r.lexem ~= generateStatements(sub).lexem;
+  r.lexem ~= generateDeclarations(sub).lexem;
+  r.lexem ~= format("}\n");
+  return r;
+}
+
+Node generateStatements(Scope sc)
+{
+  Node r;
+  const N = randomCount(sc.depth);
+
+  for(int i = 0; i < N; ++i)
+    r.lexem ~= generateStatement(sc).lexem;
+  return r;
+}
+
+Node generateStatement(Scope sc)
+{
+  return callRandomOne(
+      [
+      &generateFunctionCall,
+      &generateIfStatement,
+      &generateForLoop,
+      &generateVarDecl,
+      ],
+      sc);
+}
+
+Node generateFunctionCall(Scope sc)
+{
+  Node r;
+  const functions = sc.getVisibleFunctions();
+
+  if(functions.length == 0)
+    return r; 
+
+  const name = functions[uniform(0, $)];
+  r.lexem ~= format("%s();", name);
+  return r; 
+}
+
+Node generateVarDecl(Scope sc)
+{
+  Node r;
+  if(uniform(0, 3))
   {
-    f.writefln("union U%s", sc.allocName());
-    f.writefln("{");
-    // generateDeclarations(sc.sub());
-    f.writefln("}");
-  }
+    string initializer;
 
-  void generateStruct(Scope sc)
-  {
-    f.writefln("struct S%s", sc.allocName());
-    f.writefln("{");
-    // generateDeclarations(sc.sub());
-    f.writefln("}");
-  }
-
-  void generateInterface(Scope sc)
-  {
-    f.writefln("interface %s", sc.addClass());
-
-    f.writefln("{");
-    f.writefln("}");
-  }
-
-  void generateFunction(Scope sc)
-  {
-    const name = sc.addFunction();
-
-    f.writefln("void %s()", name);
-
-    auto sub = sc.sub();
-
-    f.writefln("{");
-    generateStatements(sub);
-    generateDeclarations(sub);
-    f.writefln("}");
-  }
-
-  void generateStatements(Scope sc)
-  {
-    const N = randomCount(sc.depth);
-
-    for(int i = 0; i < N; ++i)
-      generateStatement(sc);
-  }
-
-  void generateStatement(Scope sc)
-  {
-    callRandomOne(
-        [
-        &generateFunctionCall,
-        &generateIfStatement,
-        &generateForLoop,
-        &generateVarDecl,
-        ],
-        sc);
-  }
-
-  void generateFunctionCall(Scope sc)
-  {
-    const functions = sc.getVisibleFunctions();
-
-    if(functions.length == 0)
-      return;
-
-    const name = functions[uniform(0, $)];
-    f.writefln("%s();", name);
-  }
-
-  void generateVarDecl(Scope sc)
-  {
     if(uniform(0, 3))
+      initializer = getRandomRValue(sc);
+
+    const name = sc.addVariable();
+    const type = initializer ? "auto" : "int";
+    r.lexem ~= format("%s %s", type, name);
+
+    if(initializer)
+      r.lexem ~= format("= %s", initializer);
+
+    r.lexem ~= ";\n";
+  }
+  else
+  {
+    auto funcSymbols = filter!(a => a.flags & Scope.Symbol.FL_FUNCTION)(sc.getVisibleSymbols());
+
+    if(!funcSymbols.empty)
     {
-      string initializer;
-
-      if(uniform(0, 3))
-        initializer = getRandomRValue(sc);
-
-      const name = sc.addVariable();
-      const type = initializer ? "auto" : "int";
-      f.writef("%s %s", type, name);
-
-      if(initializer)
-        f.writef("= %s", initializer);
-
-      f.writeln(";");
-    }
-    else
-    {
-      auto funcSymbols = filter!(a => a.flags & Scope.Symbol.FL_FUNCTION)(sc.getVisibleSymbols());
-
-      if(!funcSymbols.empty)
-      {
-        const funcName = pickRandom(funcSymbols).name;
-        f.writefln("auto %s = &%s;", sc.addVariable("delegate"), funcName);
-      }
+      const funcName = pickRandom(funcSymbols).name;
+      r.lexem ~= format("auto %s = &%s;", sc.addVariable("delegate"), funcName);
     }
   }
+  return r;
+}
 
-  void generateIfStatement(Scope sc)
+Node generateIfStatement(Scope sc)
+{
+  const condition = getRandomRValue(sc);
+
+  Node r;
+
+  r.lexem ~= format("if(%s)", condition);
+  r.lexem ~= format("{");
+  generateStatements(sc.sub());
+  r.lexem ~= format("}");
+
+  if(uniform(0, 20) == 0)
   {
-    const condition = getRandomRValue(sc);
-
-    f.writefln("if(%s)", condition);
-    f.writefln("{");
+    r.lexem ~= format("else");
+    r.lexem ~= format("{");
     generateStatements(sc.sub());
-    f.writefln("}");
-
-    if(uniform(0, 20) == 0)
-    {
-      f.writefln("else");
-      f.writefln("{");
-      generateStatements(sc.sub());
-      f.writefln("}");
-    }
+    r.lexem ~= format("}");
   }
 
-  void generateForLoop(Scope sc)
-  {
-    const itName = sc.allocName();
+  return r;
+}
 
-    const init = getRandomRValue(sc);
-    const end = getRandomRValue(sc);
+Node generateForLoop(Scope sc)
+{
+  const itName = sc.allocName();
 
-    f.writefln("for(int %s=%s;%s < %s;++%s)", itName, init, itName, end, itName);
-    f.writefln("{");
-    generateStatements(sc.sub());
-    f.writefln("}");
-  }
+  const init = getRandomRValue(sc);
+  const end = getRandomRValue(sc);
 
-  string getRandomRValue(Scope sc)
-  {
-    auto variables = filter!isIntVariable(sc.getVisibleSymbols());
-    return variables.empty ? "0" : pickRandom(variables).name;
-  }
+  Node r;
+  r.lexem ~= format("for(int %s=%s;%s < %s;++%s)\n", itName, init, itName, end, itName);
+  r.lexem ~= "{\n";
+  r.lexem ~= generateStatements(sc.sub()).lexem;
+  r.lexem ~= "}\n";
+  return r;
+}
 
+string getRandomRValue(Scope sc)
+{
   static bool isIntVariable(Scope.Symbol s)
   {
     return s.flags & Scope.Symbol.FL_VARIABLE && s.type == "int";
   }
 
+  auto variables = filter!isIntVariable(sc.getVisibleSymbols());
+  return variables.empty ? "0" : pickRandom(variables).name;
 }
+
