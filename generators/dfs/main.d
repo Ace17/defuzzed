@@ -88,9 +88,9 @@ Node generateClass(Scope sc)
 
   r.lexem ~= "\n";
 
-  r.lexem ~= format("{");
+  r.lexem ~= "{\n";
   r.lexem ~= generateDeclarations(sc.sub()).lexem;
-  r.lexem ~= format("}");
+  r.lexem ~= "}\n";
 
   return r;
 }
@@ -99,9 +99,9 @@ Node generateUnion(Scope sc)
 {
   Node r;
   r.lexem ~= format("union U%s\n", sc.allocName());
-  r.lexem ~= format("{\n");
-  // generateDeclarations(sc.sub());
-  r.lexem ~= format("}\n");
+  r.lexem ~= "{\n";
+  // r.lexem ~= generateDeclarations(sc.sub()).lexem;
+  r.lexem ~= "}\n";
   return r;
 }
 
@@ -109,9 +109,9 @@ Node generateStruct(Scope sc)
 {
   Node r;
   r.lexem ~= format("struct S%s\n", sc.allocName());
-  r.lexem ~= format("{\n");
-  // generateDeclarations(sc.sub());
-  r.lexem ~= format("}\n");
+  r.lexem ~= "{\n";
+  // r.lexem ~= generateDeclarations(sc.sub()).lexem;
+  r.lexem ~= "}\n";
   return r;
 }
 
@@ -120,8 +120,8 @@ Node generateInterface(Scope sc)
   Node r;
   r.lexem ~= format("interface %s\n", sc.addClass());
 
-  r.lexem ~= format("{\n");
-  r.lexem ~= format("}\n");
+  r.lexem ~= "{\n";
+  r.lexem ~= "}\n";
   return r;
 }
 
@@ -134,10 +134,10 @@ Node generateFunction(Scope sc)
 
   auto sub = sc.sub();
 
-  r.lexem ~= format("{\n");
+  r.lexem ~= "{\n";
   r.lexem ~= generateStatements(sub).lexem;
   r.lexem ~= generateDeclarations(sub).lexem;
-  r.lexem ~= format("}\n");
+  r.lexem ~= "}\n";
   return r;
 }
 
@@ -169,11 +169,11 @@ Node generateFunctionCall(Scope sc)
   const functions = sc.getVisibleFunctions();
 
   if(functions.length == 0)
-    return r; 
+    return r;
 
   const name = functions[uniform(0, $)];
   r.lexem ~= format("%s();", name);
-  return r; 
+  return r;
 }
 
 Node generateVarDecl(Scope sc)
@@ -215,16 +215,16 @@ Node generateIfStatement(Scope sc)
   Node r;
 
   r.lexem ~= format("if(%s)", condition);
-  r.lexem ~= format("{");
+  r.lexem ~= "{\n";
   generateStatements(sc.sub());
-  r.lexem ~= format("}");
+  r.lexem ~= "}\n";
 
   if(uniform(0, 20) == 0)
   {
-    r.lexem ~= format("else");
-    r.lexem ~= format("{");
+    r.lexem ~= "else";
+    r.lexem ~= "{\n";
     generateStatements(sc.sub());
-    r.lexem ~= format("}");
+    r.lexem ~= "}\n";
   }
 
   return r;
