@@ -33,71 +33,68 @@ void fuzzyGenerate(File f)
     ctx.sc = ctx.sc.parent;
   }
 
-  with(Node)
-  {
-    auto grammar =
-      [
-      Rule(Axiom, [Prelude, StaticDeclarationBlock]),
+  auto grammar =
+    [
+    Rule(Axiom, [Prelude, StaticDeclarationBlock]),
 
-      // force at least one global variable
-      Rule(Prelude, [VariableDeclaration]),
+    // force at least one global variable
+    Rule(Prelude, [VariableDeclaration]),
 
-      Rule(StaticDeclarationBlock,
-          [TopLevelDeclarationList],
-          &onBeginBlock,
-          &onEndBlock
-          ),
+    Rule(StaticDeclarationBlock,
+        [TopLevelDeclarationList],
+        &onBeginBlock,
+        &onEndBlock
+        ),
 
-      Rule(TopLevelDeclarationList, []),
-      Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
+    Rule(TopLevelDeclarationList, []),
+    Rule(TopLevelDeclarationList, [TopLevelDeclaration, TopLevelDeclarationList]),
 
-      Rule(TopLevelDeclaration, [FunctionDeclaration]),
-      Rule(TopLevelDeclaration, [VariableDeclaration]),
-      Rule(TopLevelDeclaration, [ClassDeclaration]),
+    Rule(TopLevelDeclaration, [FunctionDeclaration]),
+    Rule(TopLevelDeclaration, [VariableDeclaration]),
+    Rule(TopLevelDeclaration, [ClassDeclaration]),
 
-      Rule(FunctionDeclaration, [Void, FunctionIdentifier, LeftPar, RightPar, BlockStatement]),
+    Rule(FunctionDeclaration, [Void, FunctionIdentifier, LeftPar, RightPar, BlockStatement]),
 
-      Rule(VariableDeclaration, [Type, NewIdentifier, Equals, Number, Semicolon]),
+    Rule(VariableDeclaration, [Type, NewIdentifier, Equals, Number, Semicolon]),
 
-      Rule(ClassDeclaration, [Class, NewClassIdentifier, LeftBrace, StaticDeclarationBlock, RightBrace]),
+    Rule(ClassDeclaration, [Class, NewClassIdentifier, LeftBrace, StaticDeclarationBlock, RightBrace]),
 
-      Rule(StatementList, []),
-      Rule(StatementList, [StatementList, Statement]),
+    Rule(StatementList, []),
+    Rule(StatementList, [StatementList, Statement]),
 
-      Rule(Statement, [ExprWithSideEffects, Semicolon]),
-      //    Rule(Statement, [Return, Expr, Semicolon]),
-      Rule(Statement, [TopLevelDeclaration]),
-      Rule(Statement, [If, LeftPar, Condition, RightPar, BlockStatement ]),
-      Rule(Statement, [For, LeftPar, ExprWithSideEffects, Semicolon, Condition, Semicolon, ExprWithSideEffects, RightPar, BlockStatement ]),
+    Rule(Statement, [ExprWithSideEffects, Semicolon]),
+    //    Rule(Statement, [Return, Expr, Semicolon]),
+    Rule(Statement, [TopLevelDeclaration]),
+    Rule(Statement, [If, LeftPar, Condition, RightPar, BlockStatement ]),
+    Rule(Statement, [For, LeftPar, ExprWithSideEffects, Semicolon, Condition, Semicolon, ExprWithSideEffects, RightPar, BlockStatement ]),
 
-      Rule(BlockStatement, [LeftBrace, StatementList, RightBrace],
-          &onBeginBlock,
-          &onEndBlock),
+    Rule(BlockStatement, [LeftBrace, StatementList, RightBrace],
+        &onBeginBlock,
+        &onEndBlock),
 
-      Rule(Condition, [Number]),
-      Rule(Condition, [Identifier]),
-      Rule(Condition, [Expr, Plus, Expr]),
-      Rule(Condition, [Expr, Minus, Expr]),
+    Rule(Condition, [Number]),
+    Rule(Condition, [Identifier]),
+    Rule(Condition, [Expr, Plus, Expr]),
+    Rule(Condition, [Expr, Minus, Expr]),
 
-      Rule(Type, [Int]),
-      //    Rule(Type, [Char]),
-      //    Rule(Type, [Float]),
+    Rule(Type, [Int]),
+    //    Rule(Type, [Char]),
+    //    Rule(Type, [Float]),
 
-      Rule(Expr, [Number]),
-      Rule(Expr, [Identifier]),
-      Rule(Expr, [LeftPar, Expr, RightPar]),
-      Rule(Expr, [Expr, Plus, Expr]),
-      Rule(Expr, [Expr, Minus, Expr]),
-      Rule(Expr, [ExprWithSideEffects]),
+    Rule(Expr, [Number]),
+    Rule(Expr, [Identifier]),
+    Rule(Expr, [LeftPar, Expr, RightPar]),
+    Rule(Expr, [Expr, Plus, Expr]),
+    Rule(Expr, [Expr, Minus, Expr]),
+    Rule(Expr, [ExprWithSideEffects]),
 
-      Rule(LValue, [Identifier]),
+    Rule(LValue, [Identifier]),
 
-      Rule(ExprWithSideEffects, [LeftPar, LValue, Equals, Expr, RightPar]),
-      ];
+    Rule(ExprWithSideEffects, [LeftPar, LValue, Equals, Expr, RightPar]),
+    ];
 
-    const tree = randomTree(grammar, new Context, Node.Axiom, &reduceTerminal);
-    f.writeln(tree);
-  }
+  const tree = randomTree(grammar, new Context, Axiom, &reduceTerminal);
+  f.writeln(tree);
 }
 
 string reduceTerminal(int from, Object opaqueContext)
@@ -107,33 +104,33 @@ string reduceTerminal(int from, Object opaqueContext)
   // terminals first
   switch(from)
   {
-  case Node.Number: return format("%s", uniform(0,100));
-  case Node.Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
-  case Node.NewIdentifier: return context.sc.addVariable();
-  case Node.FunctionIdentifier: return format("f%s ", uniform(0, 100));
-  case Node.NewClassIdentifier: return context.sc.addClass();
-  case Node.ClassIdentifier: return context.sc.getVisibleClasses()[uniform(0, $)];
-  case Node.Class: return "\nclass ";
-  case Node.Int: return "int ";
-  case Node.Void: return "void ";
-  case Node.Char: return "char ";
-  case Node.Float: return "float ";
-  case Node.If: return "if";
-  case Node.For: return "for";
-  case Node.Plus: return "+";
-  case Node.Minus: return "-";
-  case Node.Equals: return "=";
-  case Node.LeftPar: return "(";
-  case Node.RightPar: return ")";
-  case Node.LeftBrace: return "\n{\n";
-  case Node.RightBrace: return "\n}\n";
-  case Node.Semicolon: return ";";
-  case Node.Return: return "return ";
+  case Number: return format("%s", uniform(0,100));
+  case Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
+  case NewIdentifier: return context.sc.addVariable();
+  case FunctionIdentifier: return format("f%s ", uniform(0, 100));
+  case NewClassIdentifier: return context.sc.addClass();
+  case ClassIdentifier: return context.sc.getVisibleClasses()[uniform(0, $)];
+  case Class: return "\nclass ";
+  case Int: return "int ";
+  case Void: return "void ";
+  case Char: return "char ";
+  case Float: return "float ";
+  case If: return "if";
+  case For: return "for";
+  case Plus: return "+";
+  case Minus: return "-";
+  case Equals: return "=";
+  case LeftPar: return "(";
+  case RightPar: return ")";
+  case LeftBrace: return "\n{\n";
+  case RightBrace: return "\n}\n";
+  case Semicolon: return ";";
+  case Return: return "return ";
   default: assert(0, "The above switch is missing one terminal");
   }
 }
 
-enum Node
+enum
 {
   Number,
   Identifier, // a ref to an existing identifier
