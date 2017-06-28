@@ -34,11 +34,21 @@ struct Node
   string lexem;
 }
 
-alias Context = Scope;
+struct Context
+{
+  Scope sc;
+  alias sc this;
+
+  Context sub()
+  {
+    return Context(sc.sub());
+  }
+}
 
 Node generate()
 {
-  auto sc = new Context;
+  Context sc;
+  sc.sc = new Scope;
   return generateDeclarations(sc);
 }
 
