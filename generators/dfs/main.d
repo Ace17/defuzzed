@@ -34,13 +34,15 @@ struct Node
   string lexem;
 }
 
+alias Context = Scope;
+
 Node generate()
 {
-  auto sc = new Scope;
+  auto sc = new Context;
   return generateDeclarations(sc);
 }
 
-Node generateDeclarations(Scope sc)
+Node generateDeclarations(Context sc)
 {
   const numDecls = randomCount(sc.depth);
 
@@ -52,7 +54,7 @@ Node generateDeclarations(Scope sc)
   return r;
 }
 
-Node generateDeclaration(Scope sc)
+Node generateDeclaration(Context sc)
 {
   return callRandomOne(
       [
@@ -64,7 +66,7 @@ Node generateDeclaration(Scope sc)
       ], sc);
 }
 
-Node generateClass(Scope sc)
+Node generateClass(Context sc)
 {
   string inheritFrom;
 
@@ -95,7 +97,7 @@ Node generateClass(Scope sc)
   return r;
 }
 
-Node generateUnion(Scope sc)
+Node generateUnion(Context sc)
 {
   Node r;
   r.lexem ~= format("union U%s\n", sc.allocName());
@@ -105,7 +107,7 @@ Node generateUnion(Scope sc)
   return r;
 }
 
-Node generateStruct(Scope sc)
+Node generateStruct(Context sc)
 {
   Node r;
   r.lexem ~= format("struct S%s\n", sc.allocName());
@@ -115,7 +117,7 @@ Node generateStruct(Scope sc)
   return r;
 }
 
-Node generateInterface(Scope sc)
+Node generateInterface(Context sc)
 {
   Node r;
   r.lexem ~= format("interface %s\n", sc.addClass());
@@ -125,7 +127,7 @@ Node generateInterface(Scope sc)
   return r;
 }
 
-Node generateFunction(Scope sc)
+Node generateFunction(Context sc)
 {
   const name = sc.addFunction();
 
@@ -141,7 +143,7 @@ Node generateFunction(Scope sc)
   return r;
 }
 
-Node generateStatements(Scope sc)
+Node generateStatements(Context sc)
 {
   Node r;
   const N = randomCount(sc.depth);
@@ -151,7 +153,7 @@ Node generateStatements(Scope sc)
   return r;
 }
 
-Node generateStatement(Scope sc)
+Node generateStatement(Context sc)
 {
   return callRandomOne(
       [
@@ -163,7 +165,7 @@ Node generateStatement(Scope sc)
       sc);
 }
 
-Node generateFunctionCall(Scope sc)
+Node generateFunctionCall(Context sc)
 {
   Node r;
   const functions = sc.getVisibleFunctions();
@@ -176,7 +178,7 @@ Node generateFunctionCall(Scope sc)
   return r;
 }
 
-Node generateVarDecl(Scope sc)
+Node generateVarDecl(Context sc)
 {
   Node r;
   if(uniform(0, 3))
@@ -208,7 +210,7 @@ Node generateVarDecl(Scope sc)
   return r;
 }
 
-Node generateIfStatement(Scope sc)
+Node generateIfStatement(Context sc)
 {
   const condition = getRandomRValue(sc);
 
@@ -230,7 +232,7 @@ Node generateIfStatement(Scope sc)
   return r;
 }
 
-Node generateForLoop(Scope sc)
+Node generateForLoop(Context sc)
 {
   const itName = sc.allocName();
 
@@ -245,7 +247,7 @@ Node generateForLoop(Scope sc)
   return r;
 }
 
-string getRandomRValue(Scope sc)
+string getRandomRValue(Context sc)
 {
   static bool isIntVariable(Scope.Symbol s)
   {
