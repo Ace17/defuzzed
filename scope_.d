@@ -59,8 +59,13 @@ class Scope
   string addClass()
   {
     const name = format("C%s", symbols.length);
-    symbols ~= Symbol(name, Symbol.FL_CLASS);
+    addClass(name);
     return name;
+  }
+
+  void addClass(string name)
+  {
+    symbols ~= Symbol(name, Symbol.FL_CLASS);
   }
 
   void addSymbol(Symbol sym)
@@ -85,8 +90,13 @@ class Scope
   string addFunction()
   {
     const name = format("f%s", symbols.length);
-    symbols ~= Symbol(name, Symbol.FL_FUNCTION);
+    addFunction(name);
     return name;
+  }
+
+  void addFunction(string name)
+  {
+    symbols ~= Symbol(name, Symbol.FL_FUNCTION);
   }
 
   Symbol[] getVisibleSymbols() const

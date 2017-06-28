@@ -34,14 +34,21 @@ struct Node
   string lexem;
 }
 
+class Function
+{
+  bool[string] blacklist; // keep track of local functions in all scopes
+}
+
 struct Context
 {
   Scope sc;
+  Function func;
+
   alias sc this;
 
   Context sub()
   {
-    return Context(sc.sub());
+    return Context(sc.sub(), func);
   }
 }
 
@@ -91,9 +98,18 @@ Node generateClass(Context sc)
     }
   }
 
+  const name = getNewName(sc, "C");
+  sc.addClass(name);
+
+  if(sc.func)
+  {
+    assert(name !in sc.func.blacklist);
+    sc.func.blacklist[name] = true;
+  }
+
   Node r;
 
-  r.lexem ~= format("class %s", sc.addClass());
+  r.lexem ~= format("class %s", name);
 
   if(inheritFrom)
     r.lexem ~= format(" : %s", inheritFrom);
@@ -129,8 +145,19 @@ Node generateStruct(Context sc)
 
 Node generateInterface(Context sc)
 {
+  const name = getNewName(sc, "I");
+  sc.addClass(name);
+
+  writefln("// generating '%s'", name);
+  if(sc.func)
+  {
+    writefln("// Adding interface '%s' to blacklist (%s)", name, sc.func.blacklist);
+    assert(name !in sc.func.blacklist);
+    sc.func.blacklist[name] = true;
+  }
+
   Node r;
-  r.lexem ~= format("interface %s\n", sc.addClass());
+  r.lexem ~= format("interface %s\n", name);
 
   r.lexem ~= "{\n";
   r.lexem ~= "}\n";
@@ -139,16 +166,24 @@ Node generateInterface(Context sc)
 
 Node generateFunction(Context sc)
 {
-  const name = sc.addFunction();
+  const name = getNewName(sc, "f");
+
+  sc.addFunction(name);
+
+  if(sc.func)
+  {
+    assert(name !in sc.func.blacklist);
+    sc.func.blacklist[name] = true;
+  }
 
   Node r;
   r.lexem ~= format("void %s()\n", name);
 
   auto sub = sc.sub();
+  sub.func = new Function;
 
   r.lexem ~= "{\n";
   r.lexem ~= generateStatements(sub).lexem;
-  r.lexem ~= generateDeclarations(sub).lexem;
   r.lexem ~= "}\n";
   return r;
 }
@@ -171,6 +206,7 @@ Node generateStatement(Context sc)
       &generateIfStatement,
       &generateForLoop,
       &generateVarDecl,
+      &generateDeclaration,
       ],
       sc);
 }
@@ -255,6 +291,25 @@ Node generateForLoop(Context sc)
   r.lexem ~= generateStatements(sc.sub()).lexem;
   r.lexem ~= "}\n";
   return r;
+}
+
+string getNewName(Context sc, string prefix)
+{
+  bool[string] blacklist;
+  if(sc.func)
+    blacklist = sc.func.blacklist;
+
+  auto visible = sc.getVisible();
+
+  int i=0;
+  string name;
+  do
+  {
+    name = format("%s%s", prefix, i++);
+  }
+  while((name in blacklist) || canFind(visible, name));
+
+  return name;
 }
 
 string getRandomRValue(Context sc)
