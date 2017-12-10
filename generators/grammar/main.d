@@ -53,7 +53,7 @@ void fuzzyGenerate(File f)
     Rule(TopLevelDeclaration, [VariableDeclaration]),
     Rule(TopLevelDeclaration, [ClassDeclaration]),
 
-    Rule(FunctionDeclaration, [Void, FunctionIdentifier, LeftPar, RightPar, BlockStatement]),
+    Rule(FunctionDeclaration, [Void, NewFunctionIdentifier, LeftPar, RightPar, BlockStatement]),
 
     Rule(VariableDeclaration, [Type, NewIdentifier, Equals, Number, Semicolon]),
 
@@ -107,7 +107,8 @@ string reduceTerminal(int from, Object opaqueContext)
   case Number: return format("%s", uniform(0,100));
   case Identifier: return context.sc.getVisibleVariables()[uniform(0, $)];
   case NewIdentifier: return context.sc.addVariable();
-  case FunctionIdentifier: return format("f%s ", uniform(0, 100));
+  case FunctionIdentifier: return context.sc.getVisibleFunctions()[uniform(0, $)];
+  case NewFunctionIdentifier: return context.sc.addFunction();
   case NewClassIdentifier: return context.sc.addClass();
   case ClassIdentifier: return context.sc.getVisibleClasses()[uniform(0, $)];
   case Class: return "\nclass ";
@@ -138,6 +139,7 @@ enum
   ClassIdentifier,
   NewClassIdentifier,
   FunctionIdentifier,
+  NewFunctionIdentifier,
   Plus,
   Minus,
   Equals,
